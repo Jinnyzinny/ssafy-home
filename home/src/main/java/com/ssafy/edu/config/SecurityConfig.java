@@ -13,10 +13,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 
+import com.ssafy.edu.security.JwtAuthenticationFilter;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+	
+	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	    http
@@ -36,8 +45,7 @@ public class SecurityConfig {
 	            .requestMatchers("/user/login", "/user/joinPage", "/index.html", "/user/login.html", "/user/status").permitAll()
 	            .anyRequest().authenticated()
 	        )
-	        .formLogin(form -> form
-	            .loginPage("/user/login.html") // Customize the login page path if needed
+	        .formLogin(form -> form.loginPage("/user/login.html") // Customize the login page path if needed
 	            .defaultSuccessUrl("/index.html", true) // Redirect to index.html on successful login
 	            .permitAll()
 	        )

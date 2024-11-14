@@ -2,6 +2,7 @@ package com.ssafy.edu.member.controller;
 
 import com.ssafy.edu.member.MemberDto;
 import com.ssafy.edu.member.model.service.MemberService;
+import com.ssafy.edu.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -24,6 +25,9 @@ public class MemberController {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+    private JwtUtil jwtUtil;
 
 	// 로그인
 	@PostMapping("/login")
