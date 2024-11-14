@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>집싸피</title>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+	<div id="map"></div>
+	<div id="sidebar">
+		<!-- Tab Navigation -->
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item"><a class="nav-link active" id="select-tab" data-toggle="tab" href="#select" role="tab" aria-controls="select" aria-selected="false">지역 선택</a></li>
+			<li class="nav-item"><a class="nav-link" id="search-tab" data-toggle="tab" href="#search" role="tab" aria-controls="search" aria-selected="true">관심 지역</a></li>
+			<li class="nav-item"><a class="nav-link" id="dustinfo-tab" data-toggle="tab" href="#dustinfo" role="tab" aria-controls="dustinfo" aria-selected="true">대기 정보</a></li>
+		</ul>
+
+		<div class="tab-content" id="myTabContent">
+			<!-- Tab 1: 지역 선택 -->
+			<div class="tab-pane fade show active" id="select" role="tabpanel" aria-labelledby="select-tab">
+				<h4>지역 선택</h4>
+				<form id="selection-form" method="post">
+					<div class="form-group">
+						<label for="sido-select">시도 선택</label>
+						<select class="form-control" id="sido-select" name="province"></select>
+					</div>
+					<div class="form-group">
+						<label for="gugun-select">구군 선택</label>
+						<select class="form-control" id="gugun-select" name="city">
+							<option value="">구군선택</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="dong-select">동 선택</label>
+						<select class="form-control" id="dong-select" name="dong">
+							<option value="">동선택</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="year-select">연도 선택</label>
+						<select class="form-control" id="year-select" name="year">
+							<option value="">연도선택</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="month-select">월 선택</label>
+						<select class="form-control" id="month-select" name="month">
+							<option value="">월선택</option>
+						</select>
+					</div>
+					<input type="hidden" id="latitude" name="latitude" />
+					<input type="hidden" id="longitude" name="longitude" />
+					<div class="mb-4 text-right">
+						<button type="button" class="btn btn-primary" id="selection-search-btn" onclick="searchAptDeals()">검색</button>
+						<button type="button" class="btn btn-primary" id="areaAddBtn" onclick="addFavoriteArea()">관심 지역으로 추가</button>
+					</div>
+				</form>
+			</div>
+
+			<!-- Tab 2: 관심 지역 -->
+			<div class="tab-pane fade" id="search" role="tabpanel" aria-labelledby="search-tab">
+				<h4>관심 지역</h4>
+				<div class="container my-5">
+					<table class="table table-bordered">
+						<tbody id="fav-list">
+						</tbody>
+					</table>
+					<button class="btn btn-primary" onclick="fetchInterestInfo()">관심 지역 정보 조회</button>
+				</div>
+			</div>
+
+			<!-- Tab 3: 대기 정보 -->
+			<div class="tab-pane fade" id="dustinfo" role="tabpanel" aria-labelledby="dustinfo-tab">
+				<h4>대기 정보</h4>
+				<div class="container my-5">
+					<table class="table table-hover text-center">
+						<tr>
+							<th>번호</th>
+							<th>군/구</th>
+							<th>등급</th>
+						</tr>
+						<tbody id="dustinfolist"></tbody>
+					</table>
+					<button class="btn btn-primary" onclick="fetchDustInfo()">대기 정보 조회</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Login Modal -->
+	<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">로그인</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-login" method="POST" action="/user/login">
+                        <div class="form-check mb-3 float-end">
+                            <input class="form-check-input" type="checkbox" value="ok" id="saveid" name="saveid" />
+                            <label class="form-check-label" for="saveid">아이디 저장</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userid" class="form-label">아이디:</label>
+                            <input type="text" class="form-control" id="userid" name="userid" placeholder="아이디..." />
+                        </div>
+                        <div class="mb-3">
+                            <label for="userpwd" class="form-label">비밀번호:</label>
+                            <input type="password" class="form-control" id="userpwd" name="userpwd" placeholder="비밀번호..." />
+                        </div>
+                        <div class="text-center">
+                            <button type="button" id="btn-login" class="btn btn-primary mb-3" onclick="login()">로그인</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<!-- External Libraries -->
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+	<!-- Kakao Map API -->
+	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&libraries=services"></script>
+
+	<!-- Local JavaScript files -->
+	<script src="/resources/static/assets/js/map.js"></script>
+	<script src="/assets/js/map.js"></script>
+	<script src="/assets/js/user.js"></script>
+
+
+	<script>
+		// Login script
+		function login() {
+		    if (!document.getElementById("userid").value) {
+		        alert("아이디를 입력하세요!");
+		        document.getElementById("userid").focus();
+		        return;
+		    }
+		    if (!document.getElementById("userpwd").value) {
+		        alert("비밀번호를 입력하세요!");
+		        document.getElementById("userpwd").focus();
+		        return;
+		    }
+		    document.getElementById("form-login").submit();
+		}
+
+		function fetchDustInfo() {
+		    fetch('/api/dustinfo/dustList')
+		    .then(response => response.text())
+		    .then(html => {
+		        document.getElementById("dustinfolist").innerHTML = html;
+		    })
+		    .catch(err => console.error('Error fetching dust info:', err));
+		}
+
+		function fetchInterestInfo() {
+		    fetch('/api/interest/listFavoriteAreas')
+		    .then(response => response.text())
+		    .then(html => {
+		        document.getElementById("fav-list").innerHTML = html;
+		    })
+		    .catch(err => console.error('Error fetching interest info:', err));
+		}
+	</script>
+</body>
+</html>
