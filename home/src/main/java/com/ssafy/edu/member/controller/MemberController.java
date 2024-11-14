@@ -28,27 +28,36 @@ public class MemberController {
 	
 	@Autowired
     private JwtUtil jwtUtil;
+	
+	@GetMapping("/loginPage")
+    public String loginPage() {
+        return "redirect:/user/login.html";  // /user/login.html로 리다이렉트
+    }
 
 	// 로그인
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody Map<String, String> loginData, HttpServletResponse response) {
-		String userId = loginData.get("userId");
-		String userPwd = loginData.get("userPwd");
+	    String userId = loginData.get("userId");
+	    String userPwd = loginData.get("userPwd");
 
-		try {
-			Map<String, String> loginParams = Map.of("userId", userId, "userPwd", userPwd);
-			MemberDto member = memberService.loginMember(loginParams);
+	    try {
+	        Map<String, String> loginParams = Map.of("userId", userId, "userPwd", userPwd);
+	        MemberDto member = memberService.loginMember(loginParams);
 
-			if (member != null && passwordEncoder.matches(userPwd, member.getUserPwd())) {
-				// 로그인 성공 시 /로 리디렉션
-				response.sendRedirect("/");
-				return ResponseEntity.ok().build();
-			} else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-			}
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
-		}
+	        if (member != null && passwordEncoder.matches(userPwd, member.getUserPwd())) {
+	            // JWT 토큰 생성
+	            String token = jwtUtil.generateToken(userId);
+
+	            // 토큰을 응답 헤더에 추가
+	            response.setHeader("Authorization", "Bearer " + token);
+
+	            return ResponseEntity.ok().body(Map.of("token", token));
+	        } else {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+	        }
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+	    }
 	}
 
 	// 회원가입

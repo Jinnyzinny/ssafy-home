@@ -96,7 +96,6 @@
     	</div>
 	</div>
 
-
 	<!-- Login Modal -->
 	<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -142,84 +141,94 @@
 	<script src="/js/map.js"></script>
 	<script src="/js/user.js"></script>
 
-
 	<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // REST API를 통해 사용자 인증 상태를 가져옴
-    fetch("/user/status", { // API 경로는 프로젝트에 맞게 조정하세요
-        method: "GET",
-        credentials: "include" // 필요 시 쿠키를 포함
-    })
-    .then(response => response.json())
-    .then(data => {
-        const authButtons = document.getElementById("auth-buttons");
-        if (data.authenticated) {
-            // 사용자가 로그인된 경우
-            authButtons.innerHTML = `
-                <button class="btn" id="profile-btn" onclick="location.href='/user/infoPage'">회원정보</button>
-                <button class="btn" id="logout-btn" onclick="logout()">로그아웃</button>
-            `;
-        } else {
-            // 사용자가 로그인되지 않은 경우
-            authButtons.innerHTML = `
-                <button class="btn btn-custom" id="login-btn" onclick="location.href='/user/loginPage'">로그인</button>
-                <button class="btn btn-custom" id="signup-btn" onclick="location.href='/user/joinPage'">회원가입</button>
-            `;
-        }
-    })
-    .catch(error => console.error("사용자 상태 조회 오류:", error));
-});
+	document.addEventListener("DOMContentLoaded", function() {
+	    // REST API를 통해 사용자 인증 상태를 가져옴
+	    fetch("/user/status", {
+	        method: "GET",
+	        credentials: "include"
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        const authButtons = document.getElementById("auth-buttons");
+	        if (data.authenticated) {
+	            // 사용자가 로그인된 경우
+	            authButtons.innerHTML = `
+	                <button class="btn" id="profile-btn" onclick="location.href='/user/infoPage'">회원정보</button>
+	                <button class="btn" id="logout-btn" onclick="logout()">로그아웃</button>
+	            `;
+	        } else {
+	            // 사용자가 로그인되지 않은 경우
+	            authButtons.innerHTML = `
+	                <button class="btn btn-custom" id="login-btn" onclick="openLoginPage()">로그인</button>
+	                <button class="btn btn-custom" id="signup-btn" onclick="location.href='/user/joinPage'">회원가입</button>
+	            `;
+	        }
+	    })
+	    .catch(error => console.error("사용자 상태 조회 오류:", error));
+	});
 
-function logout() {
-    fetch("/api/user/logout", {
-        method: "POST",
-        credentials: "include" // 필요 시 쿠키 포함
-    })
-    .then(response => {
-        if (response.ok) {
-            location.reload(); // 로그아웃 후 페이지 새로고침
-        } else {
-            console.error("로그아웃 실패");
-        }
-    })
-    .catch(error => console.error("로그아웃 오류:", error));
-}
-</script>
-	
+	function openLoginPage() {
+	    fetch("/user/loginPage", {
+	        method: "GET"
+	    })
+	    .then(response => {
+	        if (response.ok) {
+	            window.location.href = "/user/login.html";
+	        } else {
+	            console.error("Login page request failed:", response.status);
+	            alert("로그인 페이지 로드 실패");
+	        }
+	    })
+	    .catch(error => console.error("Error fetching login page:", error));
+	}
 
-	<script>
-		// Login script
-		function login() {
-		    if (!document.getElementById("userid").value) {
-		        alert("아이디를 입력하세요!");
-		        document.getElementById("userid").focus();
-		        return;
-		    }
-		    if (!document.getElementById("userpwd").value) {
-		        alert("비밀번호를 입력하세요!");
-		        document.getElementById("userpwd").focus();
-		        return;
-		    }
-		    document.getElementById("form-login").submit();
-		}
+	function logout() {
+	    fetch("/api/user/logout", {
+	        method: "POST",
+	        credentials: "include"
+	    })
+	    .then(response => {
+	        if (response.ok) {
+	            location.reload(); // 로그아웃 후 페이지 새로고침
+	        } else {
+	            console.error("로그아웃 실패");
+	        }
+	    })
+	    .catch(error => console.error("로그아웃 오류:", error));
+	}
 
-		function fetchDustInfo() {
-		    fetch('/api/dustinfo/dustList')
-		    .then(response => response.text())
-		    .then(html => {
-		        document.getElementById("dustinfolist").innerHTML = html;
-		    })
-		    .catch(err => console.error('Error fetching dust info:', err));
-		}
+	function login() {
+	    if (!document.getElementById("userid").value) {
+	        alert("아이디를 입력하세요!");
+	        document.getElementById("userid").focus();
+	        return;
+	    }
+	    if (!document.getElementById("userpwd").value) {
+	        alert("비밀번호를 입력하세요!");
+	        document.getElementById("userpwd").focus();
+	        return;
+	    }
+	    document.getElementById("form-login").submit();
+	}
 
-		function fetchInterestInfo() {
-		    fetch('/api/interest/listFavoriteAreas')
-		    .then(response => response.text())
-		    .then(html => {
-		        document.getElementById("fav-list").innerHTML = html;
-		    })
-		    .catch(err => console.error('Error fetching interest info:', err));
-		}
+	function fetchDustInfo() {
+	    fetch('/api/dustinfo/dustList')
+	    .then(response => response.text())
+	    .then(html => {
+	        document.getElementById("dustinfolist").innerHTML = html;
+	    })
+	    .catch(err => console.error('Error fetching dust info:', err));
+	}
+
+	function fetchInterestInfo() {
+	    fetch('/api/interest/listFavoriteAreas')
+	    .then(response => response.text())
+	    .then(html => {
+	        document.getElementById("fav-list").innerHTML = html;
+	    })
+	    .catch(err => console.error('Error fetching interest info:', err));
+	}
 	</script>
 </body>
 </html>
