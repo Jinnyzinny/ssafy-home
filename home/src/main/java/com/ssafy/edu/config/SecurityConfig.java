@@ -26,11 +26,14 @@ public class SecurityConfig {
                                HttpMethod.GET,
                                "/resources/**",
                                "/",
-                               "/articles",
-                               "/articles/search-hashtag",
-                               "/css/**","/scripts/**","/plugin/**","/fonts/**"
+                               "/css/**",
+                               "/js/**",       // js 폴더 아래의 모든 파일 허용
+                               "/scripts/**",
+                               "/plugin/**",
+                               "/fonts/**"
                        ).permitAll()
-                       .requestMatchers("/", "/home", "/user/joinPage", "/joinPage").permitAll()
+                       .requestMatchers("/", "/user/joinPage", "/joinPage").permitAll()
+                       .requestMatchers("/", "/index.html", "/static/**").permitAll()
                        .anyRequest().authenticated()
                )
                .formLogin(Customizer.withDefaults())

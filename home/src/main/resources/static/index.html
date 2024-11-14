@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>집싸피</title>
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-<link href="/assets/css/style.css" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
 </head>
 <body>
 	<div id="map"></div>
@@ -89,6 +89,14 @@
 		</div>
 	</div>
 
+	<div id="top-right-buttons">
+    	<button class="btn btn-custom info-btn" id="info-btn" onclick="location.href='/board'">게시판</button>
+    	<div id="auth-buttons">
+        	<!-- 자바스크립트로 버튼을 관리합니다 -->
+    	</div>
+	</div>
+
+
 	<!-- Login Modal -->
 	<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -128,13 +136,56 @@
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 	<!-- Kakao Map API -->
-	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&libraries=services"></script>
+	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=05a47079bf95d0a15cefbb1c9fc58b82&libraries=services"></script>
 
 	<!-- Local JavaScript files -->
-	<script src="/resources/static/assets/js/map.js"></script>
-	<script src="/assets/js/map.js"></script>
-	<script src="/assets/js/user.js"></script>
+	<script src="/js/map.js"></script>
+	<script src="/js/user.js"></script>
 
+
+	<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // REST API를 통해 사용자 인증 상태를 가져옴
+    fetch("/user/status", { // API 경로는 프로젝트에 맞게 조정하세요
+        method: "GET",
+        credentials: "include" // 필요 시 쿠키를 포함
+    })
+    .then(response => response.json())
+    .then(data => {
+        const authButtons = document.getElementById("auth-buttons");
+        if (data.authenticated) {
+            // 사용자가 로그인된 경우
+            authButtons.innerHTML = `
+                <button class="btn" id="profile-btn" onclick="location.href='/user/infoPage'">회원정보</button>
+                <button class="btn" id="logout-btn" onclick="logout()">로그아웃</button>
+            `;
+        } else {
+            // 사용자가 로그인되지 않은 경우
+            authButtons.innerHTML = `
+                <button class="btn btn-custom" id="login-btn" onclick="location.href='/user/loginPage'">로그인</button>
+                <button class="btn btn-custom" id="signup-btn" onclick="location.href='/user/joinPage'">회원가입</button>
+            `;
+        }
+    })
+    .catch(error => console.error("사용자 상태 조회 오류:", error));
+});
+
+function logout() {
+    fetch("/api/user/logout", {
+        method: "POST",
+        credentials: "include" // 필요 시 쿠키 포함
+    })
+    .then(response => {
+        if (response.ok) {
+            location.reload(); // 로그아웃 후 페이지 새로고침
+        } else {
+            console.error("로그아웃 실패");
+        }
+    })
+    .catch(error => console.error("로그아웃 오류:", error));
+}
+</script>
+	
 
 	<script>
 		// Login script
