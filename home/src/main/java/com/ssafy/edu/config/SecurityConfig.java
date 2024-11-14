@@ -18,30 +18,35 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 public class SecurityConfig {
 
 	@Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-       http
-               .authorizeHttpRequests(auth -> auth
-                       .requestMatchers(String.valueOf(PathRequest.toStaticResources().atCommonLocations())).permitAll()
-                       .requestMatchers(
-                               HttpMethod.GET,
-                               "/resources/**",
-                               "/",
-                               "/css/**",
-                               "/js/**",       // js 폴더 아래의 모든 파일 허용
-                               "/scripts/**",
-                               "/plugin/**",
-                               "/fonts/**"
-                       ).permitAll()
-                       .requestMatchers("/", "/user/joinPage", "/joinPage").permitAll()
-                       .requestMatchers("/", "/index.html", "/static/**").permitAll()
-                       .anyRequest().authenticated()
-               )
-               .formLogin(Customizer.withDefaults())
-               .logout(logout -> logout
-                       .logoutSuccessUrl("/")
-               );
-       return http.build();
-    }
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	    http
+	        .authorizeHttpRequests(auth -> auth
+	            .requestMatchers(String.valueOf(PathRequest.toStaticResources().atCommonLocations())).permitAll()
+	            .requestMatchers(
+	                HttpMethod.GET,
+	                "/resources/**",
+	                "/",
+	                "/css/**",
+	                "/js/**",
+	                "/scripts/**",
+	                "/plugin/**",
+	                "/user/login",
+	                "/fonts/**"
+	            ).permitAll()
+	            .requestMatchers("/user/login", "/user/joinPage", "/index.html", "/user/login.html", "/user/status").permitAll()
+	            .anyRequest().authenticated()
+	        )
+	        .formLogin(form -> form
+	            .loginPage("/user/login.html") // Customize the login page path if needed
+	            .defaultSuccessUrl("/index.html", true) // Redirect to index.html on successful login
+	            .permitAll()
+	        )
+	        .logout(logout -> logout
+	            .logoutSuccessUrl("/")
+	        );
+	    return http.build();
+	}
+
 
     @Bean
     PasswordEncoder passwordEncoder() {
