@@ -68,75 +68,74 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-    loadBoardArticles();
+            // 글쓰기 버튼 클릭 시 write.html로 이동
+            document.getElementById("btn-mv-register").addEventListener("click", function () {
+                location.href = "/board/write.html";
+            });
 
-    // 검색 버튼 클릭 시
-    document.getElementById("btn-search").addEventListener("click", function () {
-        const key = document.getElementById("key").value;
-        const word = document.getElementById("word").value;
-        loadBoardArticles(1, key, word);
-    });
-});
+            loadBoardArticles();
 
-// 게시글 데이터를 가져오는 함수
-function loadBoardArticles(pgno = 1, key = '', word = '') {
-    const url = `/api/board?pgno=${pgno}&key=${key}&word=${word}`;
-
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            renderBoardArticles(data.articles);
-            renderPagination(data.navigation, key, word);
-        })
-        .catch(error => console.error("게시글 불러오기 오류:", error));
-}
-
-// 게시글을 테이블에 렌더링하는 함수
-function renderBoardArticles(articles) {
-    const articleList = document.getElementById("article-list");
-    articleList.innerHTML = '';
-
-    if (!articles || articles.length === 0) {
-        articleList.innerHTML = `<tr><td colspan="5" class="text-center">검색 결과가 없습니다.</td></tr>`;
-        return;
-    }
-
-    articles.forEach(article => {
-        const row = `
-            <tr class="text-center">
-                <th scope="row">${article.articleNo}</th>
-                <td class="text-start">
-                    <a href="#" class="link-dark" onclick="viewArticle(${article.articleNo})">${article.subject}</a>
-                </td>
-                <td>${article.userId}</td>
-                <td>${article.hit}</td>
-                <td>${article.registerTime}</td>
-            </tr>`;
-        articleList.innerHTML += row;
-    });
-}
-
-// 페이지네이션 버튼 렌더링
-function renderPagination(navigation, key, word) {
-    const pagination = document.getElementById("pagination");
-    pagination.innerHTML = '';
-
-    if (navigation && navigation.navigator) {
-        navigation.navigator.forEach(page => {
-            const button = document.createElement("button");
-            button.className = "btn btn-sm btn-light";
-            button.textContent = page;
-            button.onclick = () => loadBoardArticles(page, key, word);
-            pagination.appendChild(button);
+            // 검색 버튼 클릭 시
+            document.getElementById("btn-search").addEventListener("click", function () {
+                const key = document.getElementById("key").value;
+                const word = document.getElementById("word").value;
+                loadBoardArticles(1, key, word);
+            });
         });
-    }
-}
 
-// 게시글 상세 페이지로 이동
-function viewArticle(articleNo) {
-    location.href = `/board/view?articleNo=${articleNo}`;
-}
+        // 게시글 데이터를 가져오는 함수
+        function loadBoardArticles(pgno = 1, key = '', word = '') {
+            const url = `/api/board?pgno=${pgno}&key=${key}&word=${word}`;
 
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    renderBoardArticles(data.articles);
+                    renderPagination(data.navigation, key, word);
+                })
+                .catch(error => console.error("게시글 불러오기 오류:", error));
+        }
+
+        // 게시글을 테이블에 렌더링하는 함수
+        function renderBoardArticles(articles) {
+            const articleList = document.getElementById("article-list");
+            articleList.innerHTML = '';
+
+            if (!articles || articles.length === 0) {
+                articleList.innerHTML = `<tr><td colspan="5" class="text-center">검색 결과가 없습니다.</td></tr>`;
+                return;
+            }
+
+            articles.forEach(article => {
+                const row = `
+                    <tr class="text-center">
+                        <th scope="row">${article.articleNo}</th>
+                        <td class="text-start">
+                            <a href="/board/view.html?articleNo=${article.articleNo}" class="link-dark">${article.subject}</a>
+                        </td>
+                        <td>${article.userId}</td>
+                        <td>${article.hit}</td>
+                        <td>${article.registerTime}</td>
+                    </tr>`;
+                articleList.innerHTML += row;
+            });
+        }
+
+        // 페이지네이션 버튼 렌더링
+        function renderPagination(navigation, key, word) {
+            const pagination = document.getElementById("pagination");
+            pagination.innerHTML = '';
+
+            if (navigation && navigation.navigator) {
+                navigation.navigator.forEach(page => {
+                    const button = document.createElement("button");
+                    button.className = "btn btn-sm btn-light";
+                    button.textContent = page;
+                    button.onclick = () => loadBoardArticles(page, key, word);
+                    pagination.appendChild(button);
+                });
+            }
+        }
     </script>
 </body>
 

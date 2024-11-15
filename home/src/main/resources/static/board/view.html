@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>글 보기</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- 헤더 -->
+    <div id="header"></div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10 col-sm-12">
+                <h2 class="my-3 py-3 shadow-sm bg-light text-center">
+                    <b class="sky">글보기</b>
+                </h2>
+            </div>
+            <div class="col-lg-8 col-md-10 col-sm-12">
+                <div class="row my-2">
+                    <h2 class="text-secondary px-5" id="article-title"></h2>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="clearfix align-content-center">
+                            <img class="avatar me-2 float-md-start bg-light p-2"
+                                src="https://raw.githubusercontent.com/twbs/icons/main/icons/person-fill.svg" />
+                            <p>
+                                <span class="fw-bold" id="article-userId"></span> <br />
+                                <span class="text-secondary fw-light">
+                                    <span id="article-registerTime"></span> 조회 : <span id="article-hit"></span>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="divider mb-3"></div>
+                    <div class="text-secondary" id="article-content"></div>
+                    <div class="divider mt-3 mb-3"></div>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" id="btn-list" class="btn btn-outline-primary mb-3">글목록</button>
+                        <button type="button" id="btn-mv-modify" class="btn btn-outline-success mb-3 ms-1 d-none">글수정</button>
+                        <button type="button" id="btn-delete" class="btn btn-outline-danger mb-3 ms-1 d-none">글삭제</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 및 Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // 현재 URL에서 articleNo를 추출
+        const params = new URLSearchParams(window.location.search);
+        const articleNo = params.get('articleNo');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!articleNo) {
+                alert("글이 삭제되었거나 부적절한 URL 접근입니다.");
+                location.href = "/board/list.html";
+                return;
+            }
+
+            // 글 정보 로드
+            fetch(`/api/board/${articleNo}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("글을 가져오지 못했습니다.");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    renderArticle(data);
+                })
+                .catch(error => {
+                    alert(error.message);
+                    location.href = "/board/list.html";
+                });
+
+            // 삭제 버튼 이벤트
+            document.getElementById("btn-delete").addEventListener("click", () => {
+                if (confirm("정말로 글을 삭제하시겠습니까?")) {
+                    fetch(`/api/board/${articleNo}`, {
+                        method: 'DELETE',
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                alert("글이 삭제되었습니다.");
+                                location.href = "/board/list.html";
+                            } else {
+                                throw new Error("글 삭제에 실패했습니다.");
+                            }
+                        })
+                        .catch(error => alert(error.message));
+                }
+            });
+
+            // 글 목록으로 이동
+            document.getElementById("btn-list").addEventListener("click", () => {
+                location.href = "/board/list.html";
+            });
+        });
+
+        // 글 데이터 렌더링
+        function renderArticle(article) {
+            document.getElementById("article-title").textContent = `${article.articleNo}. ${article.subject}`;
+            document.getElementById("article-userId").textContent = article.userId;
+            document.getElementById("article-registerTime").textContent = article.registerTime;
+            document.getElementById("article-hit").textContent = article.hit;
+            document.getElementById("article-content").innerHTML = article.content;
+
+            // 수정 및 삭제 버튼 표시 (로그인한 사용자와 작성자가 동일한 경우)
+            const userId = localStorage.getItem("userId");
+            if (userId === article.userId) {
+                document.getElementById("btn-mv-modify").classList.remove("d-none");
+                document.getElementById("btn-delete").classList.remove("d-none");
+
+                document.getElementById("btn-mv-modify").addEventListener("click", () => {
+                    location.href = `/board/mvmodify?articleNo=${article.articleNo}`;
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
