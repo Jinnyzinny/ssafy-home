@@ -126,27 +126,37 @@ public class MemberController {
 
 	// 회원정보 수정
 	@PutMapping("/edit")
-	public ResponseEntity<?> edit(@RequestBody MemberDto memberDto, HttpSession session) {
-		MemberDto currentMember = (MemberDto) session.getAttribute("userinfo");
+	public ResponseEntity<?> edit(@RequestBody MemberDto memberDto, Authentication authentication) {
+	    if (authentication == null || !authentication.isAuthenticated()) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+	    }
 
-		if (currentMember == null) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
-		}
+	    try {
+	        String userId = ((User) authentication.getPrincipal()).getUsername();
+	        memberDto.setUserId(userId); // 로그인한 사용자의 ID로 설정
+	        
+	        // 비밀번호 암호화
+	        if (memberDto.getUserPwd() != null && !memberDto.getUserPwd().isEmpty()) {
+	            memberDto.setUserPwd(passwordEncoder.encode(memberDto.getUserPwd()));
+	        }
 
-		try {
-			memberDto.setUserId(currentMember.getUserId()); // 세션에 있는 사용자 ID로 설정
-			int result = memberService.editMember(memberDto);
+	        int result = memberService.editMember(memberDto);
 
-			if (result > 0) {
-				session.setAttribute("userinfo", memberDto); // 세션에 최신 정보 업데이트
-				return ResponseEntity.ok("Profile updated successfully");
-			} else {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Profile update failed");
-			}
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
-		}
+	        if (result > 0) {
+	            Map<String, String> response = new HashMap<>();
+	            response.put("message", "회원 정보가 수정되었습니다!");
+	            response.put("redirectUrl", "/user/edit.html"); // 수정 성공 시 이동할 페이지 URL
+	            return ResponseEntity.ok(response);
+	        } else {
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Profile update failed");
+	        }
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("An error occurred: " + e.getMessage());
+	    }
 	}
+
+
 
 	// 회원 탈퇴
 	@DeleteMapping("/delete")
