@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.ssafy.edu.board.BoardDto;
@@ -15,8 +15,8 @@ import com.ssafy.edu.util.PageNavigation;
 
 import jakarta.servlet.http.HttpSession;
 
-@Controller
-@RequestMapping("/board")
+@RestController
+@RequestMapping("/api/board")
 public class BoardController {
 
     private final BoardService boardService;
@@ -26,10 +26,59 @@ public class BoardController {
         this.boardService = boardService;
     }
 
-    // 글 목록 보기
+    // Get list of articles
     @GetMapping
-    public String listArticle(@RequestParam Map<String, String> paramMap, Model model) throws Exception {
-        // 기본 페이지 번호 설정
+    public ResponseEntity<Map<String, Object>> listArticle(@RequestParam Map<String, String> paramMap) throws Exception {
+        int pgno = parsePageNumber(paramMap);
+        paramMap.put("pgno", String.valueOf(pgno));
+
+        List<BoardDto> articles = boardService.listArticle(paramMap);
+        PageNavigation navigation = boardService.makePageNavigation(paramMap);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("articles", articles);
+        response.put("navigation", navigation);
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Get single article details
+    @GetMapping("/{articleNo}")
+    public ResponseEntity<BoardDto> getArticle(@PathVariable int articleNo) throws Exception {
+        BoardDto article = boardService.getArticle(articleNo);
+        return ResponseEntity.ok(article);
+    }
+
+    // Create new article
+    @PostMapping
+    public ResponseEntity<Void> writeArticle(@RequestBody BoardDto boardDto, HttpSession session) throws Exception {
+        MemberDto memberDto = (MemberDto) session.getAttribute("userinfo");
+        if (memberDto != null) {
+            boardDto.setUserId(memberDto.getUserId());
+            boardService.writeArticle(boardDto);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    // Update existing article
+    @PutMapping("/{articleNo}")
+    public ResponseEntity<Void> modifyArticle(@PathVariable int articleNo, @RequestBody BoardDto boardDto) throws Exception {
+        boardDto.setArticleNo(articleNo);
+        boardService.modifyArticle(boardDto);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Delete an article
+    @DeleteMapping("/{articleNo}")
+    public ResponseEntity<Void> deleteArticle(@PathVariable int articleNo) throws Exception {
+        boardService.deleteArticle(articleNo);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Helper method to parse page number
+    private int parsePageNumber(Map<String, String> paramMap) {
         int pgno;
         try {
             pgno = Integer.parseInt(paramMap.getOrDefault("pgno", "1"));
@@ -39,79 +88,6 @@ public class BoardController {
         } catch (NumberFormatException e) {
             pgno = DEFAULT_PGNO;
         }
-        paramMap.put("pgno", String.valueOf(pgno));
-
-        // 검색어 트림 및 유효성 검사
-        String key = paramMap.get("key");
-        String word = paramMap.get("word");
-        if (word != null && !word.trim().isEmpty()) {
-            paramMap.put("word", word.trim());
-        } else {
-            paramMap.put("word", "");
-        }
-
-        List<BoardDto> articles = boardService.listArticle(paramMap);
-        model.addAttribute("articles", articles);
-
-        PageNavigation navigation = boardService.makePageNavigation(paramMap);
-        navigation.setKey(key);
-        navigation.setWord(word);
-        model.addAttribute("navigation", navigation);
-
-        // 검색 조건과 검색어를 뷰에 전달하여 폼에 유지
-        model.addAttribute("key", key);
-        model.addAttribute("word", word);
-
-        return "board/list";
+        return pgno;
     }
-
-    // 글 상세 보기
-    @GetMapping("/view")
-    public String getArticle(@RequestParam("articleNo") int articleNo, Model model) throws Exception {
-        BoardDto article = boardService.getArticle(articleNo);
-        model.addAttribute("article", article);
-        return "board/view";
-    }
-
-    // 글 작성 페이지로 이동
-    @GetMapping("/mvwrite")
-    public String moveWriteArticle() {
-        return "board/write";
-    }
-
-    // 글 작성
-    @PostMapping("/write")
-    public String writeArticle(@ModelAttribute BoardDto boardDto, HttpSession session) throws Exception {
-        MemberDto memberDto = (MemberDto) session.getAttribute("userinfo");
-        if (memberDto != null) {
-            boardDto.setUserId(memberDto.getUserId());
-            boardService.writeArticle(boardDto);
-            return "redirect:/board";
-        } else {
-            return "redirect:/user/login";
-        }
-    }
-
-    // 글 수정 페이지로 이동
-    @GetMapping("/mvmodify")
-    public String moveModifyArticle(@RequestParam("articleNo") int articleNo, Model model) throws Exception {
-        BoardDto article = boardService.getArticle(articleNo);
-        model.addAttribute("article", article);
-        return "board/modify";
-    }
-
-    // 글 수정
-    @PostMapping("/modify")
-    public String modifyArticle(@ModelAttribute BoardDto boardDto) throws Exception {
-        boardService.modifyArticle(boardDto);
-        return "redirect:/board/view?articleNo=" + boardDto.getArticleNo();
-    }
-
-    // 글 삭제
-    @GetMapping("/delete")
-    public String deleteArticle(@RequestParam("articleNo") int articleNo) throws Exception {
-        boardService.deleteArticle(articleNo);
-        return "redirect:/board";
-    }
-
 }
