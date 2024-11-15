@@ -82,6 +82,7 @@ public class MemberController {
 
 	@PostMapping("/join")
 	public ResponseEntity<?> join(@RequestBody MemberDto memberDto) {
+		System.out.println("회원 가입을 하려는 memberDto 객체 정보다: " + memberDto);
 		try {
 			memberDto.setUserPwd(passwordEncoder.encode(memberDto.getUserPwd())); // 비밀번호 암호화
 			int result = memberService.joinMember(memberDto);
