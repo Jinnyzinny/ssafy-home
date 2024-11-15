@@ -13,8 +13,10 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -102,6 +104,24 @@ public class MemberController {
 		response.put("page", "user/edit");
 		return ResponseEntity.ok(response);
 	}
+	
+	// 회원 정보 가져오기 - 수정 전
+	@GetMapping("/userinfo")
+	public ResponseEntity<?> getUserInfo(Authentication authentication) throws Exception {
+	    if (authentication == null || !authentication.isAuthenticated()) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
+	    }
+
+	    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+	    MemberDto member = memberService.findByUserId(userDetails.getUsername());
+	    
+	    if (member == null) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User information not found");
+	    }
+	    
+	    return ResponseEntity.ok(member);
+	}
+
 
 	// 회원정보 수정
 	@PutMapping("/edit")

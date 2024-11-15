@@ -66,32 +66,25 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	<script>
 		// 사용자 정보 가져오기
-		fetch('/api/userinfo')
-			.then(response => response.json())
-			.then(data => {
-				document.querySelector("#username").value = data.userName;
-				document.querySelector("#userid").value = data.userId;
-				document.querySelector("#emailid").value = data.emailId;
-				document.querySelector("#emaildomain").value = data.emailDomain;
-			})
-			.catch(error => console.error("Error fetching user data:", error));
+		// 사용자 정보 가져오기
+fetch('/user/userinfo', {
+    method: 'GET',
+    headers: {
+        'Authorization': `Bearer ${localStorage.getItem("token")}`
+    }
+})
+.then(response => {
+    if (!response.ok) throw new Error("Failed to load user information");
+    return response.json();
+})
+.then(data => {
+    document.querySelector("#username").value = data.userName;
+    document.querySelector("#userid").value = data.userId;
+    document.querySelector("#emailid").value = data.emailId;
+    document.querySelector("#emaildomain").value = data.emailDomain;
+})
+.catch(error => console.error("Error fetching user data:", error));
 
-		document.querySelector("#btn-join").addEventListener("click", function(event) {
-			event.preventDefault();
-			if (!document.querySelector("#username").value) {
-				alert("이름을 입력해주세요.");
-				return;
-			} else if (!document.querySelector("#emailid").value) {
-				alert("이메일 아이디를 입력해주세요.");
-				return;
-			} else if (document.querySelector("#userpwd").value || document.querySelector("#pwdcheck").value) {
-				if (document.querySelector("#userpwd").value !== document.querySelector("#pwdcheck").value) {
-					alert("비밀번호가 일치하지 않습니다.");
-					return;
-				}
-			}
-			document.querySelector("#form-join").submit();
-		});
 
 		// 탈퇴 스크립트
 		function deleteMember() {
