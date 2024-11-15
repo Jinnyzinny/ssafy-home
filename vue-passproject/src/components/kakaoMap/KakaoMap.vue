@@ -1,10 +1,39 @@
 <script setup>
-import bottom_right_buttons from "@/components/bottom-right-buttons/bottom-right-buttons.vue";
-import { KakaoMap, KakaoMapMarker } from "vue3-kakao-maps";
+import { useApartmentStore } from "@/stores/useApartmentStore";
+import { ref } from "vue";
+const apartmentStore = useApartmentStore();
+
+import { KakaoMap, KakaoMapMarker, KakaoMapInfoWindow } from "vue3-kakao-maps";
 const coordinate = {
   lat: 33.450701,
   lng: 126.570667,
 };
+const map = ref();
+const latRange = [0, 180];
+const lngRange = [0, 100];
+
+const onLoadKakaoMap = (mapRef) => {
+  map.value = mapRef;
+};
+
+const changeLatLng = () => {
+  lat.value = Math.random() * (latRange[1] - latRange[0]) + latRange[0];
+  lng.value = Math.random() * (lngRange[1] - lngRange[0]) + lngRange[0];
+};
+
+const setCenter = () => {
+  if (map.value) {
+    map.value.setCenter(new KakaoMap.maps.LatLng());
+  }
+};
+
+const panTo = () => {
+  if (map.value) {
+    map.value.panTo(new kakao.maps.LatLng());
+  }
+};
+
+function viewMap(apt, dealAmount, address) {}
 </script>
 
 <template>
@@ -14,13 +43,12 @@ const coordinate = {
     height="100vh"
     :lat="coordinate.lat"
     :lng="coordinate.lng"
+    @onLoadKakaoMap="onLoadKakaoMap"
     :draggable="true"
     z-index="0"
   >
     <KakaoMapMarker :lat="coordinate.lat" :lng="coordinate.lng"></KakaoMapMarker>
   </KakaoMap>
-
-  <bottom_right_buttons /><!--이 부분이 하단 병원 지하철 버튼의 구현부-->
 </template>
 <style scoped>
 #map {
