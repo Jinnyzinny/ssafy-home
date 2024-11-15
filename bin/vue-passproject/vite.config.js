@@ -13,14 +13,4 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  build: {
-    outDir: "../home/src/main/resources/static",
-  },
-  server: {
-    proxy: {
-      "/": {
-        target: "http://localhost:5000",
-      },
-    },
-  },
 });

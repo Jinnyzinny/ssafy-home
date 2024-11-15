@@ -1,13 +1,7 @@
 <script setup>
-import axios from "axios";
 import { ref } from "vue";
 
 const isJoinVisible = ref(false);
-
-const join = axios
-  .post("http://localhost:5000/user/join")
-  .then()
-  .catch((error) => console.log(error));
 </script>
 <template>
   <div>
@@ -28,7 +22,7 @@ const join = axios
         <input type="text" maxlength="60" /><!--여기는 주소 찾아볼 수 있는 서비스 탑재?-->
         <h2>연락처</h2>
         <input type="text" maxlength="60" />
-        <input type="submit" value="회원가입" @click="join" />
+        <input type="submit" value="회원가입" />
         <input type="button" @click="isJoinVisible = false" value="닫기" />
       </div>
     </div>

@@ -1,7 +1,27 @@
 <script setup>
+import axios from "axios";
 import { ref } from "vue";
 
 const isLoginVisible = ref(false);
+
+const loginData = {
+  userId: "",
+  userPwd: "",
+};
+
+const loginCheck = axios
+  .post("https://localhost:5000/user/login", {
+    Headers: {
+      "content-Type": "application/json",
+    },
+    userId: "",
+    userPwd: "",
+  })
+  .then((response) => {
+    console.log(response.data.message);
+    console.log(response.data.token);
+  })
+  .catch((error) => console.log(error));
 </script>
 <template>
   <div>
@@ -13,10 +33,14 @@ const isLoginVisible = ref(false);
       <div class="modal-content">
         <h1>로그인</h1>
         <h2>아이디</h2>
-        <input type="text" maxlength="20" />
+        <input type="text" maxlength="20" name="user_Id" />
         <h2>비밀번호</h2>
-        <input type="text" maxlength="60" /><!-- 이후에 type="password로 교체해야 한다"-->
-        <input type="submit" value="로그인" />
+        <input
+          type="text"
+          maxlength="60"
+          name="user_password"
+        /><!-- 이후에 type="password로 교체해야 한다"-->
+        <input type="submit" @click="loginCheck" value="로그인" />
         <input type="button" @click="isLoginVisible = false" value="닫기" />
       </div>
     </div>
