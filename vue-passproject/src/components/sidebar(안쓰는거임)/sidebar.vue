@@ -1,25 +1,12 @@
 <script setup>
-import axios from "axios";
-
 let map, marker, infowindow;
 let overlays = [];
 
 document.addEventListener("DOMContentLoaded", function () {
-  initMap();
   initializeYearSelect();
   initializeSidoSelect();
   registerEventListeners();
 });
-
-function initMap() {
-  let latlng = { lat: 36.35536, lng: 127.298294 }; // 초기 지도 중심 좌표
-  var container = document.getElementById("map");
-  var options = {
-    center: new kakao.maps.LatLng(latlng.lat, latlng.lng),
-    level: 3,
-  };
-  map = new kakao.maps.Map(container, options); // 지도 생성
-}
 
 function initializeSidoSelect() {
   sendRequest("sido-select", "*00000000");
@@ -133,14 +120,10 @@ function searchAptDeals() {
   let monthSel = document.querySelector("#month-select");
   let month = monthSel[monthSel.selectedIndex].value;
   let dealYM = year + month;
-<<<<<<< Updated upstream:vue-passproject/src/components/sidebar/sidebar.vue
-  let queryParams = encodeURIComponent("serviceKey") + "=" + serviceKey; /*Service Key*/
-=======
   let queryParams =
     encodeURIComponent("serviceKey") +
     "=" +
     "DPvEhobzPWBOZeUPzkAk%2BrZ5QivehlbFnKUS%2FMZd8Owx%2BNA5PKwRI20j9YzN9qo0M6K3dDzS3deSt%2Fl6zFVjpg%3D%3D";
->>>>>>> Stashed changes:vue-passproject/src/components/sidebar(안쓰는거임)/sidebar.vue
   queryParams +=
     "&" + encodeURIComponent("LAWD_CD") + "=" + encodeURIComponent(regCode); /*구군 코드*/
   queryParams +=
