@@ -4,6 +4,7 @@ import com.ssafy.edu.member.MemberDto;
 import com.ssafy.edu.member.model.service.MemberService;
 import com.ssafy.edu.util.JwtUtil;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
@@ -149,25 +150,36 @@ public class MemberController {
 
 	// 회원 탈퇴
 	@DeleteMapping("/delete")
-	public ResponseEntity<?> delete(HttpSession session) {
-		MemberDto member = (MemberDto) session.getAttribute("userinfo");
+    public ResponseEntity<String> delete(Authentication authentication, HttpServletResponse response) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body("User not authenticated");
+        }
 
-		if (member == null) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
-		}
+        try {
+            // 인증된 사용자 ID 가져오기
+            String userId = ((User) authentication.getPrincipal()).getUsername();
 
-		try {
-			int result = memberService.deleteMember(member.getUserId());
-			if (result > 0) {
-				session.invalidate(); // 탈퇴 후 세션 종료
-				return ResponseEntity.ok("Account deleted successfully");
-			} else {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account deletion failed");
-			}
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
-		}
-	}
+            int result = memberService.deleteMember(userId);
+            if (result > 0) {
+                // 쿠키 삭제
+                Cookie tokenCookie = new Cookie("token", null);
+                tokenCookie.setPath("/");
+                tokenCookie.setHttpOnly(true);
+                tokenCookie.setMaxAge(0); // 즉시 만료
+                response.addCookie(tokenCookie);
+
+                // SecurityContext에서 인증 정보 제거
+                SecurityContextHolder.clearContext();
+
+                return ResponseEntity.ok("Account deleted successfully");
+            } else {
+                return ResponseEntity.badRequest().body("Account deletion failed");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
+        }
+    }
+
 
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 회원 인증 상태 확인
