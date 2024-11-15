@@ -40,4 +40,11 @@ public class MemberServiceImpl implements MemberService {
     public int deleteMember(String userId) throws Exception {
         return memberMapper.deleteMember(userId);
     }
+    
+    @Override
+    public MemberDto findByUserId(String userId) throws Exception {
+    	System.out.println("findByUserId called");
+        return memberMapper.findByUserId(userId);
+    }
+
 }

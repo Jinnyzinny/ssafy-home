@@ -61,7 +61,7 @@
 
 	<select id="findByUserId" parameterType="String"
 		resultType="com.ssafy.edu.member.MemberDto">
-		SELECT user_id as userId,
+		SELECT user_id as userId, 
 		user_name as userName,
 		user_password as userPwd,
 		email_id as emailId,

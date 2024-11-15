@@ -10,4 +10,5 @@ public interface MemberService {
     MemberDto loginMember(Map<String, String> map) throws Exception;
     int editMember(MemberDto memberDto) throws Exception;
     int deleteMember(String userId) throws Exception;
+    public MemberDto findByUserId(String userId) throws Exception;
 }
