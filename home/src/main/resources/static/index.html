@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data.authenticated) {
                 console.log("로그인된 상태입니다.");
                 authButtons.innerHTML = `
-                	<button class="btn btn-custom" id="profile-btn" onclick="location.href='/user/infoPage'">프로필</button>
+                	<button class="btn btn-custom" id="profile-btn" onclick="location.href='/user/edit.html'">회원정보</button>
                     <button class="btn btn-custom" id="logout-btn" onclick="logout()">로그아웃</button>
                 `;
             } else {
