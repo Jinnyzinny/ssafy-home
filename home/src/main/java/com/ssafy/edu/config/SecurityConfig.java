@@ -2,11 +2,8 @@ package com.ssafy.edu.config;
 
 import com.ssafy.edu.security.JwtAuthenticationFilter;
 import com.ssafy.edu.member.model.service.CustomUserDetailsService;
-
-import org.springframework.boot.autoconfigure.security.reactive.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,18 +29,17 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (필요에 따라 설정 가능)
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션을 상태 비저장으로 설정
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(String.valueOf(PathRequest.toStaticResources().atCommonLocations())).permitAll()
                 .requestMatchers(
-                    "/",
-                    "/user/loginPage",
-                    "/user/login.html",
+                    "/", 
+                    "/user/loginPage", 
+                    "/user/login.html", 
                     "/user/joinPage.html",
-                    "/index.html",
+                    "/index.html", 
                     "/resources/**",  
                     "/css/**",
                     "/js/**",
@@ -52,14 +48,13 @@ public class SecurityConfig {
                     "/images/**",  
                     "/webjars/**", 
                     "/fonts/**",
-                    "/user/login",
-                    "/user/loginPage",
-                    "/user/joinPage",
-                    "/user/status"
-                ).permitAll()
-                .anyRequest().authenticated()
+                    "/user/login", 
+                    "/user/status", 
+                    "/user/joinPage"
+                ).permitAll() // 특정 경로를 모두에게 허용
+                .anyRequest().authenticated() // 그 외 요청은 인증 필요
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JwtAuthenticationFilter 추가
 
         return http.build();
     }

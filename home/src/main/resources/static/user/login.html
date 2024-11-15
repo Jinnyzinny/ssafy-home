@@ -66,11 +66,11 @@
         const data = await response.json();
 
         if (response.ok) {
-            localStorage.setItem('token', data.token); // 토큰 저장
-            window.location.href = '/index.html'; // 로그인 성공 시 index.html로 이동
-        } else {
-            document.querySelector("#error").innerText = data.message || "Invalid credentials";
-        }
+    localStorage.setItem('token', data.token); // 여기서 'token' 키 확인
+    window.location.href = '/index.html';
+} else {
+    document.querySelector("#error").innerText = data.message || "Invalid credentials";
+}
     } catch (error) {
         document.querySelector("#error").innerText = "An error occurred: " + error.message;
     }

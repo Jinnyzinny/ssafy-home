@@ -14,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/user")
@@ -42,32 +44,20 @@ public class MemberController {
 	    String userPwd = loginData.get("userPwd");
 
 	    try {
-	        // findByUserId로 사용자 ID만으로 조회
 	        MemberDto member = memberService.findByUserId(userId);
-	        System.out.println("Found member: " + member); // 디버깅 로그
-
-	        if (member == null) {
-	            System.out.println("User not found with userId: " + userId);
+	        if (member == null || !passwordEncoder.matches(userPwd, member.getUserPwd())) {
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid credentials"));
 	        }
 
-	        if (!passwordEncoder.matches(userPwd, member.getUserPwd())) {
-	            System.out.println("Password does not match for userId: " + userId);
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid credentials"));
-	        }
-
-	        // JWT 토큰 생성
-	        String token = jwtUtil.generateToken(userId);
+	        // JWT 토큰 생성 (사용자 ID와 이름을 포함)
+	        String token = jwtUtil.generateToken(member.getUserId(), member.getUserName());
 	        response.setHeader("Authorization", "Bearer " + token);
 
 	        return ResponseEntity.ok(Map.of("token", token, "message", "Login successful"));
 	    } catch (Exception e) {
-	        System.out.println("An error occurred: " + e.getMessage());
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "An error occurred: " + e.getMessage()));
 	    }
 	}
-
-
 
 
 	// 회원가입
@@ -143,17 +133,21 @@ public class MemberController {
 	@GetMapping("/status")
 	public ResponseEntity<Map<String, Object>> getStatus() {
 	    Map<String, Object> response = new HashMap<>();
-	    boolean isAuthenticated = SecurityContextHolder.getContext().getAuthentication() != null &&
-	                              SecurityContextHolder.getContext().getAuthentication().isAuthenticated();
-	    response.put("authenticated", isAuthenticated);
-	    if (isAuthenticated) {
-	        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	    var auth = SecurityContextHolder.getContext().getAuthentication();
+	    
+	    if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String && "anonymousUser".equals(auth.getPrincipal()))) {
+	        // userId 또는 username을 추출합니다.
+	        String userId = ((User) auth.getPrincipal()).getUsername();
+	        
+	        response.put("authenticated", true);
 	        response.put("userId", userId);
-	        response.put("userName", userId);  // 필요시 사용자 이름
+	        response.put("userName", userId); // 필요에 따라 사용자 이름 설정
+	    } else {
+	        response.put("authenticated", false);
 	    }
+
 	    return ResponseEntity.ok(response);
 	}
-
 
 
 }

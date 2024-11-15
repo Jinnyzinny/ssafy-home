@@ -110,11 +110,12 @@
 
 	<script>
 document.addEventListener("DOMContentLoaded", function() {
-    // 로컬 스토리지에서 JWT 토큰 가져오기
-    const token = localStorage.getItem("jwtToken");
+    const authButtons = document.getElementById("auth-buttons");
+    const token = localStorage.getItem("token");
 
     // JWT 토큰이 있으면 인증 상태 확인
     if (token) {
+    	console.log("JWT 토큰이 있습니다.");
         fetch("/user/status", {
             method: "GET",
             headers: {
@@ -123,25 +124,24 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(response => response.json())
         .then(data => {
-            const authButtons = document.getElementById("auth-buttons");
             if (data.authenticated) {
-                // 로그인된 상태의 버튼
+                console.log("로그인된 상태입니다.");
                 authButtons.innerHTML = `
-                    <button class="btn" id="profile-btn" onclick="location.href='/user/infoPage'">회원정보</button>
-                    <button class="btn" id="logout-btn" onclick="logout()">로그아웃</button>
+                    <button class="btn btn-custom" id="logout-btn" onclick="logout()">로그아웃</button>
+                    <button class="btn btn-custom" id="profile-btn" onclick="location.href='/user/profile'">프로필</button>
                 `;
             } else {
-                // 로그인이 안 된 상태의 버튼
-                showLoginButtons(authButtons);
+                console.log("로그인되지 않은 상태입니다.");
+                showLoginButtons(authButtons); // 비로그인 상태 처리
             }
         })
         .catch(error => {
             console.error("사용자 상태 조회 오류:", error);
-            showLoginButtons(document.getElementById("auth-buttons"));
+            showLoginButtons(authButtons); // 오류 시에도 비로그인 상태로 간주
         });
     } else {
-        // JWT 토큰이 없으면 로그인되지 않은 상태로 표시
-        showLoginButtons(document.getElementById("auth-buttons"));
+        console.log("JWT 토큰이 존재하지 않습니다.");
+        showLoginButtons(authButtons); // 토큰이 없으면 비로그인 상태로 간주
     }
 });
 
@@ -189,7 +189,6 @@ function login() {
     .catch(error => console.error("로그인 오류:", error));
 }
 </script>
-
 
 </body>
 </html>
