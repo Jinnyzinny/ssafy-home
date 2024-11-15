@@ -1,7 +1,5 @@
 package com.ssafy.edu.security;
 
-
-
 import com.ssafy.edu.util.JwtUtil;
 
 import jakarta.servlet.FilterChain;
@@ -12,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -20,6 +19,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -30,11 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             token = authorizationHeader.substring(7);
-            username = JwtUtil.getUsernameFromToken(token);
+            username = jwtUtil.getUsernameFromToken(token); // 인스턴스 메서드 호출로 변경
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (JwtUtil.validateToken(token)) {
+            if (jwtUtil.validateToken(token)) { // 인스턴스 메서드 호출로 변경
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         username, null, new ArrayList<>()
                 );

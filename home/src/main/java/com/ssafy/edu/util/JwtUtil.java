@@ -8,14 +8,13 @@ import java.security.Key;
 import java.util.Date;
 
 import org.springframework.stereotype.Component;
-
 @Component
 public class JwtUtil {
-    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // 키 생성
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // 키 생성
     private static final long EXPIRATION_TIME = 86400000; // 1일
 
     // JWT 토큰 생성
-    public static String generateToken(String username) {
+    public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
@@ -25,12 +24,12 @@ public class JwtUtil {
     }
 
     // JWT 토큰에서 사용자명 추출
-    public static String getUsernameFromToken(String token) {
+    public String getUsernameFromToken(String token) {
         return getClaims(token).getSubject();
     }
 
     // 토큰 유효성 검증
-    public static boolean validateToken(String token) {
+    public boolean validateToken(String token) {
         try {
             return !getClaims(token).getExpiration().before(new Date());
         } catch (Exception e) {
@@ -39,7 +38,7 @@ public class JwtUtil {
     }
 
     // 클레임 추출
-    private static Claims getClaims(String token) {
+    private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

@@ -20,6 +20,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         MemberDto member = memberMapper.findByUserId(username);
+        System.out.println("여기는 오냐?");
+        System.out.println("Found member: " + member); // 디버깅 로그 추가
         if (member == null) {
             throw new UsernameNotFoundException("User not found");
         }
@@ -28,4 +30,5 @@ public class CustomUserDetailsService implements UserDetailsService {
                    .roles("USER")
                    .build();
     }
+
 }

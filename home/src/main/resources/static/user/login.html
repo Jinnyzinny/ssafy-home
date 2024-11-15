@@ -45,32 +45,37 @@
 
 <script>
     document.querySelector("#btn-login").addEventListener("click", async function() {
-        const userId = document.querySelector("#userid").value;
-        const userPwd = document.querySelector("#userpwd").value;
-        
-        if (!userId) {
-            alert("아이디 입력!!");
-            return;
-        } else if (!userPwd) {
-            alert("비밀번호 입력!!");
-            return;
-        }
+    const userId = document.querySelector("#userid").value;
+    const userPwd = document.querySelector("#userpwd").value;
 
-        try {
-            const response = await fetch('/user/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, userPwd })
-            });
-            if (response.ok) {
-                window.location.href = '/';
-            } else {
-                document.querySelector("#error").innerText = "Invalid credentials";
-            }
-        } catch (error) {
-            document.querySelector("#error").innerText = "An error occurred: " + error.message;
+    if (!userId) {
+        alert("아이디 입력!!");
+        return;
+    } else if (!userPwd) {
+        alert("비밀번호 입력!!");
+        return;
+    }
+
+    try {
+        const response = await fetch('/user/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, userPwd })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('token', data.token); // 토큰 저장
+            window.location.href = '/index.html'; // 로그인 성공 시 index.html로 이동
+        } else {
+            document.querySelector("#error").innerText = data.message || "Invalid credentials";
         }
-    });
+    } catch (error) {
+        document.querySelector("#error").innerText = "An error occurred: " + error.message;
+    }
+});
+
 </script>
 </body>
 </html>
