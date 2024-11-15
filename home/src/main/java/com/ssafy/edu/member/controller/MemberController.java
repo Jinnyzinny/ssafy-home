@@ -32,6 +32,9 @@ public class MemberController {
 	@Autowired
     private JwtUtil jwtUtil;
 	
+	
+	// 로그인 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	@GetMapping("/loginPage")
     public String loginPage() {
         return "redirect:/user/login.html";  // /user/login.html로 리다이렉트
@@ -59,7 +62,7 @@ public class MemberController {
 	    }
 	}
 
-
+	// 회원가입 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 회원가입
 	@PostMapping("/join")
 	public ResponseEntity<?> join(@RequestBody MemberDto memberDto) {
@@ -78,6 +81,16 @@ public class MemberController {
 	public ResponseEntity<?> logout(HttpSession session) {
 		session.invalidate(); // 세션 무효화
 		return ResponseEntity.ok("Logged out successfully");
+	}
+	
+	
+	// 회원정보 수정 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// 회원 정보 페이지
+	@GetMapping("/infoPage")
+	public ResponseEntity<Map<String, String>> info() {
+	    Map<String, String> response = new HashMap<>();
+	    response.put("page", "user/edit");
+	    return ResponseEntity.ok(response);
 	}
 
 	// 회원정보 수정
@@ -126,10 +139,9 @@ public class MemberController {
 		}
 	}
 
-	// 회원 인증 상태 확인
+	
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// 사용자 인증 상태 확인
+	// 회원 인증 상태 확인
 	@GetMapping("/status")
 	public ResponseEntity<Map<String, Object>> getStatus() {
 	    Map<String, Object> response = new HashMap<>();
