@@ -29,13 +29,14 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (필요에 따라 설정 가능)
+            .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션을 상태 비저장으로 설정
             )
             .authorizeHttpRequests(auth -> auth
+                // 토큰 없이 접근 가능한 경로 설정
                 .requestMatchers(
-                    "/", 
+                    "/**", 
                     "/user/loginPage", 
                     "/user/login.html", 
                     "/user/joinPage.html",
@@ -48,7 +49,8 @@ public class SecurityConfig {
                     "/images/**",  
                     "/webjars/**", 
                     "/fonts/**",
-                    "/user/login", 
+                    "/user/login",
+                    "/user/joinPage",
                     "/user/status", 
                     "/user/joinPage"
                 ).permitAll() // 특정 경로를 모두에게 허용

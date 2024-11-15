@@ -18,7 +18,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/user")
 public class MemberController {
@@ -28,42 +27,59 @@ public class MemberController {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
-    private JwtUtil jwtUtil;
-	
+	private JwtUtil jwtUtil;
+
 	
 	// 로그인 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+	// 로그인 페이지
 	@GetMapping("/loginPage")
-    public String loginPage() {
-        return "redirect:/user/login.html";  // /user/login.html로 리다이렉트
-    }
+	public String loginPage() {
+		return "redirect:/user/login.html"; // /user/login.html로 리다이렉트
+	}
 
 	// 로그인
 	@PostMapping("/login")
-	public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> loginData, HttpServletResponse response) {
-	    String userId = loginData.get("userId");
-	    String userPwd = loginData.get("userPwd");
+	public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> loginData,
+			HttpServletResponse response) {
+		String userId = loginData.get("userId");
+		String userPwd = loginData.get("userPwd");
 
-	    try {
-	        MemberDto member = memberService.findByUserId(userId);
-	        if (member == null || !passwordEncoder.matches(userPwd, member.getUserPwd())) {
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid credentials"));
-	        }
+		try {
+			MemberDto member = memberService.findByUserId(userId);
+			if (member == null || !passwordEncoder.matches(userPwd, member.getUserPwd())) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid credentials"));
+			}
 
-	        // JWT 토큰 생성 (사용자 ID와 이름을 포함)
-	        String token = jwtUtil.generateToken(member.getUserId(), member.getUserName());
-	        response.setHeader("Authorization", "Bearer " + token);
+			// JWT 토큰 생성 (사용자 ID와 이름을 포함)
+			String token = jwtUtil.generateToken(member.getUserId(), member.getUserName());
+			response.setHeader("Authorization", "Bearer " + token);
 
-	        return ResponseEntity.ok(Map.of("token", token, "message", "Login successful"));
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "An error occurred: " + e.getMessage()));
-	    }
+			return ResponseEntity.ok(Map.of("token", token, "message", "Login successful"));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Map.of("message", "An error occurred: " + e.getMessage()));
+		}
+	}
+
+	// 로그아웃
+	@PostMapping("/logout")
+	public ResponseEntity<?> logout(HttpSession session) {
+		session.invalidate(); // 세션 무효화
+		return ResponseEntity.ok("Logged out successfully");
 	}
 
 	// 회원가입 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 회원가입
+	// 회원가입 페이지 요청에 대한 RESTful 응답 추가
+	@GetMapping("/joinPage")
+	public ResponseEntity<Map<String, String>> joinPage() {
+	    Map<String, String> response = new HashMap<>();
+	    response.put("redirectUrl", "/user/join.html");
+	    return ResponseEntity.ok(response);
+	}
+
 	@PostMapping("/join")
 	public ResponseEntity<?> join(@RequestBody MemberDto memberDto) {
 		try {
@@ -76,21 +92,14 @@ public class MemberController {
 		}
 	}
 
-	// 로그아웃
-	@PostMapping("/logout")
-	public ResponseEntity<?> logout(HttpSession session) {
-		session.invalidate(); // 세션 무효화
-		return ResponseEntity.ok("Logged out successfully");
-	}
-	
-	
+
 	// 회원정보 수정 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 회원 정보 페이지
 	@GetMapping("/infoPage")
 	public ResponseEntity<Map<String, String>> info() {
-	    Map<String, String> response = new HashMap<>();
-	    response.put("page", "user/edit");
-	    return ResponseEntity.ok(response);
+		Map<String, String> response = new HashMap<>();
+		response.put("page", "user/edit");
+		return ResponseEntity.ok(response);
 	}
 
 	// 회원정보 수정
@@ -139,27 +148,26 @@ public class MemberController {
 		}
 	}
 
-	
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 회원 인증 상태 확인
 	@GetMapping("/status")
 	public ResponseEntity<Map<String, Object>> getStatus() {
-	    Map<String, Object> response = new HashMap<>();
-	    var auth = SecurityContextHolder.getContext().getAuthentication();
-	    
-	    if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String && "anonymousUser".equals(auth.getPrincipal()))) {
-	        // userId 또는 username을 추출합니다.
-	        String userId = ((User) auth.getPrincipal()).getUsername();
-	        
-	        response.put("authenticated", true);
-	        response.put("userId", userId);
-	        response.put("userName", userId); // 필요에 따라 사용자 이름 설정
-	    } else {
-	        response.put("authenticated", false);
-	    }
+		Map<String, Object> response = new HashMap<>();
+		var auth = SecurityContextHolder.getContext().getAuthentication();
 
-	    return ResponseEntity.ok(response);
+		if (auth != null && auth.isAuthenticated()
+				&& !(auth.getPrincipal() instanceof String && "anonymousUser".equals(auth.getPrincipal()))) {
+			// userId 또는 username을 추출합니다.
+			String userId = ((User) auth.getPrincipal()).getUsername();
+
+			response.put("authenticated", true);
+			response.put("userId", userId);
+			response.put("userName", userId); // 필요에 따라 사용자 이름 설정
+		} else {
+			response.put("authenticated", false);
+		}
+
+		return ResponseEntity.ok(response);
 	}
-
 
 }

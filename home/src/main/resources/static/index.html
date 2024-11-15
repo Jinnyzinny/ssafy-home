@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function() {
 function showLoginButtons(authButtons) {
     authButtons.innerHTML = `
         <button class="btn btn-custom" id="login-btn" onclick="openLoginPage()">로그인</button>
-        <button class="btn btn-custom" id="signup-btn" onclick="location.href='/user/joinPage'">회원가입</button>
+        <button class="btn btn-custom" id="signup-btn" onclick="location.href='/user/join.html'">회원가입</button>
     `;
 }
 
@@ -188,6 +188,7 @@ function login() {
     })
     .catch(error => console.error("로그인 오류:", error));
 }
+
 </script>
 
 </body>

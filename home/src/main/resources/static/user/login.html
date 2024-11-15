@@ -41,41 +41,58 @@
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 저장된 아이디가 있으면 입력란에 자동으로 채워줌
+        const savedUserId = localStorage.getItem("savedUserId");
+        if (savedUserId) {
+            document.querySelector("#userid").value = savedUserId;
+            document.querySelector("#saveid").checked = true;
+        }
+    });
 
-
-<script>
     document.querySelector("#btn-login").addEventListener("click", async function() {
-    const userId = document.querySelector("#userid").value;
-    const userPwd = document.querySelector("#userpwd").value;
+        const userId = document.querySelector("#userid").value;
+        const userPwd = document.querySelector("#userpwd").value;
+        const saveIdChecked = document.querySelector("#saveid").checked;
 
-    if (!userId) {
-        alert("아이디 입력!!");
-        return;
-    } else if (!userPwd) {
-        alert("비밀번호 입력!!");
-        return;
-    }
+        if (!userId) {
+            alert("아이디를 입력하세요!");
+            return;
+        } else if (!userPwd) {
+            alert("비밀번호를 입력하세요!");
+            return;
+        }
 
-    try {
-        const response = await fetch('/user/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, userPwd })
-        });
+        try {
+            const response = await fetch('/user/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, userPwd })
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (response.ok) {
-    localStorage.setItem('token', data.token); // 여기서 'token' 키 확인
-    window.location.href = '/index.html';
-} else {
-    document.querySelector("#error").innerText = data.message || "Invalid credentials";
-}
-    } catch (error) {
-        document.querySelector("#error").innerText = "An error occurred: " + error.message;
-    }
-});
+            if (response.ok) {
+                // 로그인 성공 시 JWT 토큰을 로컬 스토리지에 저장
+                localStorage.setItem('token', data.token);
+                
+                // 아이디 저장 여부에 따라 로컬 스토리지에 아이디 저장
+                if (saveIdChecked) {
+                    localStorage.setItem("savedUserId", userId);
+                } else {
+                    localStorage.removeItem("savedUserId");
+                }
 
+                // 로그인 후 메인 페이지로 이동
+                window.location.href = '/index.html';
+            } else {
+                document.querySelector("#error").innerText = data.message || "아이디 또는 비밀번호가 올바르지 않습니다.";
+            }
+        } catch (error) {
+            document.querySelector("#error").innerText = "오류 발생: " + error.message;
+        }
+    });
 </script>
 </body>
 </html>
