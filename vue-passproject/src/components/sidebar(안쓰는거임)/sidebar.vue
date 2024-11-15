@@ -133,7 +133,14 @@ function searchAptDeals() {
   let monthSel = document.querySelector("#month-select");
   let month = monthSel[monthSel.selectedIndex].value;
   let dealYM = year + month;
+<<<<<<< Updated upstream:vue-passproject/src/components/sidebar/sidebar.vue
   let queryParams = encodeURIComponent("serviceKey") + "=" + serviceKey; /*Service Key*/
+=======
+  let queryParams =
+    encodeURIComponent("serviceKey") +
+    "=" +
+    "DPvEhobzPWBOZeUPzkAk%2BrZ5QivehlbFnKUS%2FMZd8Owx%2BNA5PKwRI20j9YzN9qo0M6K3dDzS3deSt%2Fl6zFVjpg%3D%3D";
+>>>>>>> Stashed changes:vue-passproject/src/components/sidebar(안쓰는거임)/sidebar.vue
   queryParams +=
     "&" + encodeURIComponent("LAWD_CD") + "=" + encodeURIComponent(regCode); /*구군 코드*/
   queryParams +=
@@ -607,7 +614,7 @@ function showSubways() {
 
 #search-results,
 #selection-results {
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
   margin-top: 20px;
 }
