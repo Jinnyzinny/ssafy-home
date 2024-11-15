@@ -123,9 +123,7 @@ function searchAptDeals() {
   let queryParams =
     encodeURIComponent("serviceKey") +
     "=" +
-    encodeURIComponent(
-      "DPvEhobzPWBOZeUPzkAk%2BrZ5QivehlbFnKUS%2FMZd8Owx%2BNA5PKwRI20j9YzN9qo0M6K3dDzS3deSt%2Fl6zFVjpg%3D%3D"
-    ); //serviceKey; /*Service Key*/
+    "DPvEhobzPWBOZeUPzkAk%2BrZ5QivehlbFnKUS%2FMZd8Owx%2BNA5PKwRI20j9YzN9qo0M6K3dDzS3deSt%2Fl6zFVjpg%3D%3D";
   queryParams +=
     "&" + encodeURIComponent("LAWD_CD") + "=" + encodeURIComponent(regCode); /*구군 코드*/
   queryParams +=
@@ -599,7 +597,7 @@ function showSubways() {
 
 #search-results,
 #selection-results {
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
   margin-top: 20px;
 }
