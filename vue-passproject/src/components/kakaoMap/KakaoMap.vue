@@ -10,9 +10,10 @@ watch(
   () => mapStore.markerPosition, //mapStore에 marker를 띄울 주소로 이동
   (newPosition) => {
     if (newPosition) {
+      map.value.panTo(new kakao.maps.LatLng(newPosition.lat, newPosition.lng));
       center.value = newPosition; // 지도 중심을 새로운 위치로 변경
       markerPosition.value = newPosition; // 마커 위치도 업데이트
-      onClickKakaoMapMarker();
+      customOverlayVisible.value = true;
     }
   }
 );
@@ -22,13 +23,13 @@ import {
   KakaoMapMarker,
   KakaoMapCustomOverlay,
 } from "vue3-kakao-maps";
-import { mapState } from "pinia";
 
 const onLoadKakaoMap = (mapRef) => {
   map.value = mapRef;
 };
 
 const customOverlayVisible = ref(false);
+
 const onClickKakaoMapMarker = () => {
   customOverlayVisible.value = !customOverlayVisible.value;
 };
