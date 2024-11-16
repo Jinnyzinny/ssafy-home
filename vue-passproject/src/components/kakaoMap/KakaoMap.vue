@@ -12,14 +12,25 @@ watch(
     if (newPosition) {
       center.value = newPosition; // 지도 중심을 새로운 위치로 변경
       markerPosition.value = newPosition; // 마커 위치도 업데이트
+      onClickKakaoMapMarker();
     }
   }
 );
 
-import { KakaoMap, KakaoMapMarker, KakaoMapInfoWindow } from "vue3-kakao-maps";
+import {
+  KakaoMap,
+  KakaoMapMarker,
+  KakaoMapCustomOverlay,
+} from "vue3-kakao-maps";
+import { mapState } from "pinia";
 
 const onLoadKakaoMap = (mapRef) => {
   map.value = mapRef;
+};
+
+const customOverlayVisible = ref(false);
+const onClickKakaoMapMarker = () => {
+  customOverlayVisible.value = !customOverlayVisible.value;
 };
 </script>
 
@@ -36,9 +47,34 @@ const onLoadKakaoMap = (mapRef) => {
   >
     <!-- 동적으로 마커 렌더링 -->
     <KakaoMapMarker
-      v-if="markerPosition"
-      :position="markerPosition"
-    ></KakaoMapMarker>
+      :lat="center.lat"
+      :lng="center.lng"
+      @on-click-kakao-map-marker="onClickKakaoMapMarker"
+      :clickable="true"
+    />
+    <KakaoMapCustomOverlay
+      :lat="center.lat"
+      :lng="center.lng"
+      :visible="customOverlayVisible"
+      :yAnchor="1.4"
+      ><div
+        style="
+          padding: 10px;
+          background-color: white;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+        "
+      >
+        <div style="font-weight: bold; margin-bottom: 5px">
+          아파트 이름 : {{ mapStore.aptName }} <br />매매 거래액 :
+          {{ mapStore.dealAmount }}<br />
+          아파트 주소 : {{ mapStore.address }}<br />
+        </div>
+      </div>
+    </KakaoMapCustomOverlay>
   </KakaoMap>
 </template>
 <style scoped>
