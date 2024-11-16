@@ -40,6 +40,7 @@ public class SecurityConfig {
                     "/user/loginPage", 
                     "/user/login.html", 
                     "/user/joinPage.html",
+                    "/api/board/**", // 게시판 API 요청 허용
                     "/index.html", 
                     "/resources/**",  
                     "/css/**",

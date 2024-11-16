@@ -26,7 +26,8 @@ public class JwtUtil {
 
     // JWT 토큰에서 사용자 ID 추출
     public String getUserIdFromToken(String token) {
-        return getClaims(token).getSubject();
+    	Claims claims = getClaims(token);
+        return claims != null ? claims.getSubject() : null;
     }
 
     // JWT 토큰에서 사용자 이름 추출

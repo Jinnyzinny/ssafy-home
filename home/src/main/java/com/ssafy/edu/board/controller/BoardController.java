@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import com.ssafy.edu.board.BoardDto;
 import com.ssafy.edu.board.model.service.BoardService;
 import com.ssafy.edu.member.MemberDto;
+import com.ssafy.edu.util.JwtUtil;
 import com.ssafy.edu.util.PageNavigation;
 
 import jakarta.servlet.http.HttpSession;
@@ -20,6 +22,9 @@ import jakarta.servlet.http.HttpSession;
 public class BoardController {
 
     private final BoardService boardService;
+    
+    @Autowired
+	private JwtUtil jwtUtil;
 
     public BoardController(BoardService boardService) {
         this.boardService = boardService;
@@ -61,21 +66,30 @@ public class BoardController {
 
     // 글 작성
     @PostMapping
-    public ResponseEntity<Void> writeArticle(@RequestBody BoardDto boardDto, HttpSession session) {
+    public ResponseEntity<Void> writeArticle(@RequestBody BoardDto boardDto, @RequestHeader("Authorization") String token) {
         try {
-            MemberDto memberDto = (MemberDto) session.getAttribute("userinfo");
-            if (memberDto != null) {
-                boardDto.setUserId(memberDto.getUserId());
-                boardService.writeArticle(boardDto);
-                return ResponseEntity.status(HttpStatus.CREATED).build();
-            } else {
+            // 토큰 유효성 확인
+            if (token == null || !token.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
+
+            // JWT에서 사용자 ID 추출
+            String jwtToken = token.substring(7);
+            if (!jwtUtil.validateToken(jwtToken)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            String userId = jwtUtil.getUserIdFromToken(jwtToken);
+
+            // 사용자 정보 설정 후 저장
+            boardDto.setUserId(userId);
+            boardService.writeArticle(boardDto);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     // 글 수정
     @PutMapping("/{articleNo}")
