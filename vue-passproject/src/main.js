@@ -8,10 +8,10 @@ import router from "./router";
 
 import { useKakao } from "vue3-kakao-maps/@utils";
 
-useKakao("d02b03ce9a797eb1398d15acce7bfb49");
+useKakao("05a47079bf95d0a15cefbb1c9fc58b82");
 
 const app = createApp(App);
 app.use(createPinia());
 
 // app.use(router);
- app.mount("#app");
+app.mount("#app");
