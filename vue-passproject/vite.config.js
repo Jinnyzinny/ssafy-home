@@ -18,7 +18,7 @@ export default defineConfig({
   }, // 빌드 결과물이 생성되는 경로
   server: {
     proxy: {
-      "/api": "http://localhost:8080",
+      "/": "http://localhost:5000",
     }, // proxy 설정
   },
 });
