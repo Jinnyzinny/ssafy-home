@@ -15,7 +15,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // 모든 엔드포인트에 대해
-                		.allowedOrigins("http://localhost:5173", "http://localhost:5174") // Vue 개발 서버 URL
+                		.allowedOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5000") // Vue 개발 서버 URL
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(),
         						HttpMethod.DELETE.name(), HttpMethod.HEAD.name(), HttpMethod.OPTIONS.name(),
         						HttpMethod.PATCH.name())
