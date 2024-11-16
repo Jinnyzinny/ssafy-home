@@ -1,39 +1,26 @@
 <script setup>
-import { useApartmentStore } from "@/stores/useApartmentStore";
-import { ref } from "vue";
-const apartmentStore = useApartmentStore();
+import { ref, watch } from "vue";
+import { useMapStore } from "@/stores/mapStore";
+
+const mapStore = useMapStore();
+const center = ref({ lat: 37.5665, lng: 126.978 }); // 초기 지도 중심 좌표
+const markerPosition = ref(null); // 초기 마커 위치는 null
+
+watch(
+  () => mapStore.markerPosition, //mapStore에 marker를 띄울 주소로 이동
+  (newPosition) => {
+    if (newPosition) {
+      center.value = newPosition; // 지도 중심을 새로운 위치로 변경
+      markerPosition.value = newPosition; // 마커 위치도 업데이트
+    }
+  }
+);
 
 import { KakaoMap, KakaoMapMarker, KakaoMapInfoWindow } from "vue3-kakao-maps";
-const coordinate = {
-  lat: 33.450701,
-  lng: 126.570667,
-};
-const map = ref();
-const latRange = [0, 180];
-const lngRange = [0, 100];
 
 const onLoadKakaoMap = (mapRef) => {
   map.value = mapRef;
 };
-
-const changeLatLng = () => {
-  lat.value = Math.random() * (latRange[1] - latRange[0]) + latRange[0];
-  lng.value = Math.random() * (lngRange[1] - lngRange[0]) + lngRange[0];
-};
-
-const setCenter = () => {
-  if (map.value) {
-    map.value.setCenter(new KakaoMap.maps.LatLng());
-  }
-};
-
-const panTo = () => {
-  if (map.value) {
-    map.value.panTo(new kakao.maps.LatLng());
-  }
-};
-
-function viewMap(apt, dealAmount, address) {}
 </script>
 
 <template>
@@ -41,13 +28,17 @@ function viewMap(apt, dealAmount, address) {}
     id="map"
     width="100%"
     height="100vh"
-    :lat="coordinate.lat"
-    :lng="coordinate.lng"
+    :lat="center.lat"
+    :lng="center.lng"
     @onLoadKakaoMap="onLoadKakaoMap"
     :draggable="true"
     z-index="0"
   >
-    <KakaoMapMarker :lat="coordinate.lat" :lng="coordinate.lng"></KakaoMapMarker>
+    <!-- 동적으로 마커 렌더링 -->
+    <KakaoMapMarker
+      v-if="markerPosition"
+      :position="markerPosition"
+    ></KakaoMapMarker>
   </KakaoMap>
 </template>
 <style scoped>

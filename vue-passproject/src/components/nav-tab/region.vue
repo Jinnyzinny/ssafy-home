@@ -1,4 +1,8 @@
 <script setup>
+import { useMapStore } from "@/stores/mapStore";
+
+const mapStore = useMapStore();
+
 import { onMounted } from "vue";
 onMounted(() => {
   initializeYearSelect();
@@ -49,9 +53,15 @@ function handleYearChange() {
 }
 
 function registerEventListeners() {
-  document.querySelector("#sido-select").addEventListener("change", updateGugunSelect);
-  document.querySelector("#gugun-select").addEventListener("change", updateDongSelect);
-  document.querySelector("#selection-search-btn").addEventListener("click", searchAptDeals);
+  document
+    .querySelector("#sido-select")
+    .addEventListener("change", updateGugunSelect);
+  document
+    .querySelector("#gugun-select")
+    .addEventListener("change", updateDongSelect);
+  document
+    .querySelector("#selection-search-btn")
+    .addEventListener("click", searchAptDeals);
 }
 
 function updateGugunSelect() {
@@ -97,7 +107,9 @@ function addOption(selid, data) {
       let idx = 2;
       data.regcodes.forEach(function (regcode) {
         if (regcode.name.split(" ").length !== 3) idx = 3;
-        opt += `<option value="${regcode.code}">${regcode.name.split(" ")[idx]}</option>`;
+        opt += `<option value="${regcode.code}">${
+          regcode.name.split(" ")[idx]
+        }</option>`;
       });
       break;
   }
@@ -111,7 +123,8 @@ function initOption(selid) {
 
 function searchAptDeals() {
   let gugun = document.querySelector("#gugun-select");
-  let url = "https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev";
+  let url =
+    "https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev";
   let regCode = gugun[gugun.selectedIndex].value.substr(0, 5);
   let yearSel = document.querySelector("#year-select");
   let year = yearSel[yearSel.selectedIndex].value;
@@ -123,12 +136,25 @@ function searchAptDeals() {
     "=" +
     "DPvEhobzPWBOZeUPzkAk%2BrZ5QivehlbFnKUS%2FMZd8Owx%2BNA5PKwRI20j9YzN9qo0M6K3dDzS3deSt%2Fl6zFVjpg%3D%3D";
   queryParams +=
-    "&" + encodeURIComponent("LAWD_CD") + "=" + encodeURIComponent(regCode); /*구군 코드*/
+    "&" +
+    encodeURIComponent("LAWD_CD") +
+    "=" +
+    encodeURIComponent(regCode); /*구군 코드*/
   queryParams +=
-    "&" + encodeURIComponent("DEAL_YMD") + "=" + encodeURIComponent(dealYM); /*조회년월*/
-  queryParams += "&" + encodeURIComponent("pageNo") + "=" + encodeURIComponent("1"); /*페이지번호*/
+    "&" +
+    encodeURIComponent("DEAL_YMD") +
+    "=" +
+    encodeURIComponent(dealYM); /*조회년월*/
   queryParams +=
-    "&" + encodeURIComponent("numOfRows") + "=" + encodeURIComponent("30"); /*페이지당 건수*/
+    "&" +
+    encodeURIComponent("pageNo") +
+    "=" +
+    encodeURIComponent("1"); /*페이지번호*/
+  queryParams +=
+    "&" +
+    encodeURIComponent("numOfRows") +
+    "=" +
+    encodeURIComponent("30"); /*페이지당 건수*/
 
   fetch(`${url}?${queryParams}`)
     .then((response) => response.text())
@@ -184,7 +210,8 @@ function makeList(data) {
     tr.appendChild(dongTd);
 
     let priceTd = document.createElement("td");
-    priceTd.textContent = getEok(apt.querySelector("dealAmount").textContent) + "억원";
+    priceTd.textContent =
+      getEok(apt.querySelector("dealAmount").textContent) + "억원";
     priceTd.classList.add("text-end");
     tr.appendChild(priceTd);
 
@@ -195,8 +222,25 @@ function makeList(data) {
       const address = `${apt.querySelector("umdNm").textContent} ${
         apt.querySelector("jibun").textContent
       }`;
+      console.log("Event check");
+      console.log(aptName, dealAmount, address);
 
-      viewMap(aptName, dealAmount, address);
+      // 지오코딩을 통해 주소를 좌표로 변환
+      const geocoder = new kakao.maps.services.Geocoder();
+      geocoder.addressSearch(address, function (result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+          const position = {
+            lat: parseFloat(result[0].y),
+            lng: parseFloat(result[0].x),
+          };
+
+          // Pinia 상태 업데이트
+          console.log(position.lat + " " + position.lng);
+          mapStore.setAptDetails(aptName, dealAmount, address, position);
+        } else {
+          console.error("Geocoding failed:", status);
+        }
+      });
     });
 
     tbody.appendChild(tr);
@@ -206,157 +250,133 @@ function makeList(data) {
   document.querySelector("table").style.display = "table";
 }
 function viewMap(apt, dealAmount, address) {
-	// 기존 마커 없애기
-	if (marker != null) {
-		marker.setMap(null);
-	}
+  // 기존 마커 없애기
+  if (marker != null) {
+    marker.setMap(null);
+  }
 
-	// 기존 infowindow 없애기
-	if (infowindow != null) {
-		infowindow.close();
-	}
+  // 기존 infowindow 없애기
+  if (infowindow != null) {
+    infowindow.close();
+  }
 
-	// 기존 overlays 없애기
-	if (overlays.length != 0) {
-		overlays.forEach((overlay) => {
-			overlay.setMap(null);
-		})
-		overlays = [];
-	}
+  // 기존 overlays 없애기
+  if (overlays.length != 0) {
+    overlays.forEach((overlay) => {
+      overlay.setMap(null);
+    });
+    overlays = [];
+  }
 
+  // 주소-좌표 변환 객체를 생성합니다
+  var geocoder = new kakao.maps.services.Geocoder();
 
-	// 주소-좌표 변환 객체를 생성합니다
-	var geocoder = new kakao.maps.services.Geocoder();
+  // 주소로 좌표를 검색합니다
+  geocoder.addressSearch(address, async function (result, status) {
+    // 정상적으로 검색이 완료됐으면
+    if (status === kakao.maps.services.Status.OK) {
+      var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
 
-	// 주소로 좌표를 검색합니다
-	geocoder.addressSearch(address, async function(result, status) {
-		// 정상적으로 검색이 완료됐으면
-		if (status === kakao.maps.services.Status.OK) {
-			var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+      // 결과값으로 받은 위치를 마커로 표시합니다
+      marker = new kakao.maps.Marker({
+        map: map,
+        position: coords,
+      });
 
-			// 결과값으로 받은 위치를 마커로 표시합니다
-			marker = new kakao.maps.Marker({
-				map: map,
-				position: coords,
-			});
+      // 인포윈도우로 장소에 대한 설명을 표시합니다
+      infowindow = new kakao.maps.InfoWindow({
+        content: `<div style="width:150px;text-align:center;padding:6px 0;">${apt}, ${dealAmount}억원</div>`,
+        zIndex: 100,
+      });
+      infowindow.open(map, marker);
 
+      // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+      await map.setCenter(coords);
 
-			// 인포윈도우로 장소에 대한 설명을 표시합니다
-			infowindow = new kakao.maps.InfoWindow({
-				content: `<div style="width:150px;text-align:center;padding:6px 0;">${apt}, ${dealAmount}억원</div>`,
-				zIndex: 100
-			});
-			infowindow.open(map, marker);
+      // 근처 업장 정보를 최신화 시키고 마커로 표시합니다.
+      const businessRows = document.querySelectorAll("#businessinfolist tr");
 
-			// 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
-			await map.setCenter(coords);
+      // 근처 업장 테이블의 tr 별로 파싱합니다.
+      let list = []; // 업장과 클릭한 아파트 사이에 거리를 담고 있는 리스트
 
-			// 근처 업장 정보를 최신화 시키고 마커로 표시합니다.
-			const businessRows = document.querySelectorAll("#businessinfolist tr");
+      let promises = Array.from(businessRows).map((row) => {
+        const cells = Array.from(row.querySelectorAll("td"));
+        const rowData = cells.map((cell) => cell.textContent);
 
-			// 근처 업장 테이블의 tr 별로 파싱합니다.
-			let list = []; // 업장과 클릭한 아파트 사이에 거리를 담고 있는 리스트
+        const businessName = rowData[0];
+        const industry = rowData[1];
+        const address = rowData[2];
 
-			let promises = Array.from(businessRows).map(row => {
-				const cells = Array.from(row.querySelectorAll("td"));
-				const rowData = cells.map(cell => cell.textContent);
+        // Promise를 반환하여 비동기 작업 완료를 보장
+        return new Promise((resolve, reject) => {
+          // 업장의 주소 정보를 좌표로 변환합니다.
+          geocoder.addressSearch(address, (result, status) => {
+            if (status == kakao.maps.services.Status.OK) {
+              let bCoords = new kakao.maps.LatLng(result[0].y, result[0].x);
 
-				const businessName = rowData[0];
-				const industry = rowData[1];
-				const address = rowData[2];
+              // 업종별 가장 가까운 업장을 판별합니다.
+              let deltaX = coords.getLat() - bCoords.getLat();
+              let deltaY = coords.getLng() - bCoords.getLng();
 
-				// Promise를 반환하여 비동기 작업 완료를 보장
-				return new Promise((resolve, reject) => {
-					// 업장의 주소 정보를 좌표로 변환합니다.
-					geocoder.addressSearch(address, (result, status) => {
-						if (status == kakao.maps.services.Status.OK) {
-							let bCoords = new kakao.maps.LatLng(result[0].y, result[0].x);
+              let dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-							// 업종별 가장 가까운 업장을 판별합니다.
-							let deltaX = coords.getLat() - bCoords.getLat();
-							let deltaY = coords.getLng() - bCoords.getLng();
+              list.push({ businessName, industry, bCoords, dist });
+              resolve(); // 작업이 완료되면 resolve 호출
+            } else {
+              reject(status); // 에러가 발생하면 reject 호출
+            }
+          });
+        });
+      });
 
-							let dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      // 모든 비동기 작업이 완료된 후 정렬을 실행합니다
+      Promise.all(promises)
+        .then(async () => {
+          await selectionSort(list);
+          //list.sort((a, b) => a.dist - b.dist);
 
-							list.push({ businessName, industry, bCoords, dist });
-							resolve(); // 작업이 완료되면 resolve 호출
-						} else {
-							reject(status); // 에러가 발생하면 reject 호출
-						}
-					});
-				});
-			});
+          for (let idx = 0; idx < 10; idx++) {
+            const ele = list[idx];
+            console.log(ele);
 
-			// 모든 비동기 작업이 완료된 후 정렬을 실행합니다
-			Promise.all(promises).then(async () => {
-				await selectionSort(list);
-				//list.sort((a, b) => a.dist - b.dist);
+            // overlay 띄우기
+            let overlay = new kakao.maps.CustomOverlay({
+              map: map,
+              position: ele.bCoords,
+              content: `<span style="display: block;background: #50627F;color: #fff;text-align: center;border-radius:4px;padding:0px 10px;">${ele.businessName}</span>`,
+            });
 
-				for (let idx = 0; idx < 10; idx++) {
-					const ele = list[idx];
-					console.log(ele);
+            overlays.push(overlay);
+          }
+        })
+        .catch((error) => {
+          console.error("에러 발생:", error);
+        });
+    }
+  });
 
-					// overlay 띄우기
-					let overlay = new kakao.maps.CustomOverlay({
-						map: map,
-						position: ele.bCoords,
-						content: `<span style="display: block;background: #50627F;color: #fff;text-align: center;border-radius:4px;padding:0px 10px;">${ele.businessName}</span>`,
-					});
+  function selectionSort(arr) {
+    return new Promise((resolve, reject) => {
+      let n = arr.length;
 
-					overlays.push(overlay);
-				}
+      for (let i = 0; i < n - 1; i++) {
+        let minIndex = i;
+        for (let j = i + 1; j < n; j++) {
+          if (arr[j].dist < arr[minIndex].dist) {
+            minIndex = j;
+          }
+        }
 
-			}).catch((error) => {
-				console.error("에러 발생:", error);
-			});
-		}
-	});
-
-	function selectionSort(arr) {
-		return new Promise((resolve, reject) => {
-			let n = arr.length;
-
-			for (let i = 0; i < n - 1; i++) {
-				let minIndex = i;
-				for (let j = i + 1; j < n; j++) {
-					if (arr[j].dist < arr[minIndex].dist) {
-						minIndex = j;
-					}
-				}
-
-				if (minIndex !== i) {
-					let temp = arr[i];
-					arr[i] = arr[minIndex];
-					arr[minIndex] = temp;
-				}
-			}
-			resolve();
-		});
-	}
+        if (minIndex !== i) {
+          let temp = arr[i];
+          arr[i] = arr[minIndex];
+          arr[minIndex] = temp;
+        }
+      }
+      resolve();
+    });
+  }
 }
-
-// const viewMap = (apt, dealAmount, addresss) => {
-//   const geoCoder = new kakao.maps.services.Geocoder();
-
-//   geoCoder.addressSearch(address, async function (result, status) {
-//     if (status === kakao.maps.services.Status.OK) {
-//       const coords = new kakao.maps.LatLng();
-
-//       const marker = new kakao.maps.Marker({
-//         map: map,
-//         position: coords,
-//       });
-
-//       const infowindow = new kakao.maps.InfoWindow({
-//         content: `<div style="width:150px;text-align:center;padding:6px 0;">${apt}, ${dealAmount}억원</div>`,
-//         zIndex: 10,
-//       });
-//       infowindow.open(map, marker);
-
-//       map.setCenter(coords); /*여기 지금 문제 있음*/
-//     }
-//   });
-// };
 
 function getEok(price) {
   var newprice = parseFloat(price.replace(",", "")) / 10000;
@@ -365,39 +385,76 @@ function getEok(price) {
 </script>
 
 <template>
-  <div class="tab-pane fade show active" id="select" role="tabpanel" aria-labelledby="select-tab">
+  <div
+    class="tab-pane fade show active"
+    id="select"
+    role="tabpanel"
+    aria-labelledby="select-tab"
+  >
     <h4>지역 선택</h4>
-    <form id="selection-form" action="${root}/addFavoriteArea" method="post">
+    <form
+      id="selection-form"
+      action="${root}/addFavoriteArea"
+      method="post"
+    >
       <div class="form-group">
         <label for="sido-select">시도 선택</label>
-        <select class="form-control" id="sido-select" name="province"></select>
+        <select
+          class="form-control"
+          id="sido-select"
+          name="province"
+        ></select>
       </div>
       <div class="form-group">
         <label for="gugun-select">구군 선택</label>
-        <select class="form-control" id="gugun-select" name="city">
+        <select
+          class="form-control"
+          id="gugun-select"
+          name="city"
+        >
           <option value="">구군선택</option>
         </select>
       </div>
       <div class="form-group">
         <label for="dong-select">동 선택</label>
-        <select class="form-control" id="dong-select" name="dong">
+        <select
+          class="form-control"
+          id="dong-select"
+          name="dong"
+        >
           <option value="">동선택</option>
         </select>
       </div>
       <div class="form-group">
         <label for="year-select">연도 선택</label>
-        <select class="form-control" id="year-select" name="year">
+        <select
+          class="form-control"
+          id="year-select"
+          name="year"
+        >
           <option value="">연도선택</option>
         </select>
       </div>
       <div class="form-group">
         <label for="month-select">월 선택</label>
-        <select class="form-control" id="month-select" name="month">
+        <select
+          class="form-control"
+          id="month-select"
+          name="month"
+        >
           <option value="">월선택</option>
         </select>
       </div>
-      <input type="hidden" id="latitude" name="latitude" />
-      <input type="hidden" id="longitude" name="longitude" />
+      <input
+        type="hidden"
+        id="latitude"
+        name="latitude"
+      />
+      <input
+        type="hidden"
+        id="longitude"
+        name="longitude"
+      />
       <div class="mb-4 text-right">
         <button
           type="button"
@@ -420,7 +477,10 @@ function getEok(price) {
     </form>
 
     <div id="selection-results">
-      <table class="table table-hover text-center" style="display: none">
+      <table
+        class="table table-hover text-center"
+        style="display: none"
+      >
         <tr>
           <th>아파트이름</th>
           <th>층</th>

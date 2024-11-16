@@ -1,7 +1,7 @@
 <script setup>
 import axios from "axios";
 import { ref } from "vue";
-import axiosInstance from "@/componenets/axios/axios.js";
+import axiosInstance from "@/components/axios/axios.js";
 
 const isLoginVisible = ref(false);
 
@@ -14,12 +14,18 @@ const loginCheck = axiosInstance.post("/user/login", {});
       <button @click="isLoginVisible = true">로그인</button>
 
       <!-- 모달 창 -->
-      <div v-if="isLoginVisible" id="modal-overlay">
+      <div
+        v-if="isLoginVisible"
+        id="modal-overlay"
+      >
         <div id="modal-content">
           <h2 class="my-3 py-3 shadow-sm bg-light text-center">로그인</h2>
 
           <b class="orange">아이디</b>
-          <input type="text" maxlength="20" />
+          <input
+            type="text"
+            maxlength="20"
+          />
           <br />
           <b class="orange">비밀번호</b>
           <input
@@ -27,8 +33,16 @@ const loginCheck = axiosInstance.post("/user/login", {});
             maxlength="60"
           /><!-- 이후에 type="password로 교체해야 한다"-->
           <br />
-          <input type="submit" value="로그인" @click="" />
-          <input type="button" @click="isLoginVisible = false" value="닫기" />
+          <input
+            type="submit"
+            value="로그인"
+            @click=""
+          />
+          <input
+            type="button"
+            @click="isLoginVisible = false"
+            value="닫기"
+          />
         </div>
       </div>
     </div>
