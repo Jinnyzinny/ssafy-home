@@ -63,10 +63,19 @@
 			<div class="tab-pane fade" id="search" role="tabpanel" aria-labelledby="search-tab">
 				<h4>관심 지역</h4>
 				<div class="container my-5">
-					<table class="table table-bordered">
-						<tbody id="fav-list">
-						</tbody>
-					</table>
+					<table class="table ta">
+			            <thead>
+			                <tr>
+			                    <th>시/도</th>
+			                    <th>군/구</th>
+			                    <th>동</th>
+			                    <th>삭제</th>
+			                </tr>
+			            </thead>
+			            <tbody id="interest-list-body">
+			                <!-- 데이터 행이 여기에 추가됩니다 -->
+			            </tbody>
+			        </table>
 					<button class="btn btn-primary" onclick="fetchInterestInfo()">관심 지역 정보 조회</button>
 				</div>
 			</div>
@@ -232,6 +241,72 @@ function fetchDustInfo() {
         });
 }
 </script>
+
+<script>
+function fetchInterestInfo() {
+    fetch('/interest/listFavoriteAreas')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('interest-list-body');
+            tbody.innerHTML = ''; // 기존 데이터 초기화
+
+            data.forEach(interest => {
+                const tr = document.createElement('tr');
+
+                // 시/도
+                const tdSido = document.createElement('td');
+                tdSido.textContent = interest.interestSidoName;
+                tr.appendChild(tdSido);
+
+                // 군/구
+                const tdGugun = document.createElement('td');
+                tdGugun.textContent = interest.interestGugunName;
+                tr.appendChild(tdGugun);
+
+                // 동
+                const tdDong = document.createElement('td');
+                tdDong.textContent = interest.interestDongName;
+                tr.appendChild(tdDong);
+
+                // 삭제 버튼
+                const tdDelete = document.createElement('td');
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = '삭제';
+                deleteButton.classList.add('btn', 'btn-danger');
+                deleteButton.onclick = function() {
+                    deleteFavoriteArea(interest.interestId);
+                };
+                tdDelete.appendChild(deleteButton);
+                tr.appendChild(tdDelete);
+
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(error => {
+            console.error('관심 지역 정보를 가져오는 중 오류 발생:', error);
+            alert('관심 지역 정보를 가져오는 데 실패했습니다.');
+        });
+}
+
+function deleteFavoriteArea(interestId) {
+    fetch(`/interest/deleteFavoriteArea?interestId=${interestId}`, {
+        method: 'DELETE',
+    })
+    .then(response => {
+        if (response.ok) {
+            fetchInterestInfo(); // 목록 갱신
+        } else {
+            console.error('관심 지역 삭제 실패');
+            alert('관심 지역 삭제에 실패했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('관심 지역 삭제 중 오류 발생:', error);
+    });
+}
+</script>
+
+
 
 </body>
 </html>

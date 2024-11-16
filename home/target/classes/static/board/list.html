@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>게시판</title>
-    <!-- Include Bootstrap CSS -->
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
-    <!-- Common Header -->
+    <!-- 공통 헤더 -->
     <div id="header"></div>
 
     <div class="container">
+        <!-- 헤더 섹션 -->
         <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10 col-sm-12">
                 <h2 class="my-3 py-3 shadow-sm bg-light text-center">
@@ -21,6 +21,7 @@
                 </h2>
             </div>
             <div class="col-lg-8 col-md-10 col-sm-12">
+                <!-- 글쓰기 버튼과 검색 폼 -->
                 <div class="row align-self-center mb-2">
                     <div class="col-md-2 text-start">
                         <button type="button" id="btn-mv-register" class="btn btn-outline-primary btn-sm">글쓰기</button>
@@ -40,6 +41,7 @@
                         </form>
                     </div>
                 </div>
+                <!-- 게시글 테이블 -->
                 <table class="table table-hover">
                     <thead>
                         <tr class="text-center">
@@ -51,11 +53,12 @@
                         </tr>
                     </thead>
                     <tbody id="article-list">
-                        <!-- Articles will be dynamically added here -->
+                        <!-- 게시글 목록이 동적으로 추가됩니다 -->
                     </tbody>
                 </table>
-                <div class="row" id="pagination">
-                    <!-- Pagination will be dynamically added here -->
+                <!-- 페이지네이션 -->
+                <div class="row justify-content-center" id="pagination">
+                    <!-- 페이지네이션 버튼들이 동적으로 추가됩니다 -->
                 </div>
 
                 <button type="button" class="btn btn-outline-primary btn-sm" onclick="location.href='/'">홈페이지</button>
@@ -63,9 +66,9 @@
         </div>
     </div>
 
-    <!-- Include Bootstrap JS -->
+    <!-- Bootstrap JS 및 필요한 JavaScript 파일 -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+    
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // 글쓰기 버튼 클릭 시 write.html로 이동
@@ -126,15 +129,46 @@
             const pagination = document.getElementById("pagination");
             pagination.innerHTML = '';
 
-            if (navigation && navigation.navigator) {
-                navigation.navigator.forEach(page => {
-                    const button = document.createElement("button");
-                    button.className = "btn btn-sm btn-light";
-                    button.textContent = page;
-                    button.onclick = () => loadBoardArticles(page, key, word);
-                    pagination.appendChild(button);
+            if (navigation && navigation.pageNumbers) {
+                const currentPage = navigation.currentPage;
+                const totalPageCount = navigation.totalPageCount;
+
+                // '처음' 버튼
+                const firstButton = createPaginationButton('처음', 1, key, word, currentPage === 1);
+                pagination.appendChild(firstButton);
+
+                // '이전' 버튼
+                const prevPage = currentPage > 1 ? currentPage - 1 : 1;
+                const prevButton = createPaginationButton('이전', prevPage, key, word, currentPage === 1);
+                pagination.appendChild(prevButton);
+
+                // 페이지 번호 버튼들
+                navigation.pageNumbers.forEach(page => {
+                    const pageButton = createPaginationButton(page, page, key, word, currentPage === page);
+                    pagination.appendChild(pageButton);
                 });
+
+                // '다음' 버튼
+                const nextPage = currentPage < totalPageCount ? currentPage + 1 : totalPageCount;
+                const nextButton = createPaginationButton('다음', nextPage, key, word, currentPage === totalPageCount);
+                pagination.appendChild(nextButton);
+
+                // '마지막' 버튼
+                const lastButton = createPaginationButton('마지막', totalPageCount, key, word, currentPage === totalPageCount);
+                pagination.appendChild(lastButton);
             }
+        }
+
+        // 페이지네이션 버튼 생성 함수
+        function createPaginationButton(text, page, key, word, disabled = false) {
+            const button = document.createElement("button");
+            button.className = "btn btn-sm " + ((text == page && !isNaN(page)) ? "btn-primary" : "btn-light");
+            button.textContent = text;
+            button.disabled = disabled;
+            button.addEventListener('click', () => {
+                loadBoardArticles(page, key, word);
+            });
+            return button;
         }
     </script>
 </body>
