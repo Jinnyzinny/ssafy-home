@@ -38,10 +38,10 @@ const gotoLogin = () => {
     </template>
     <template v-else>
       <!-- 비로그인 상태 -->
-      <!-- <login @click="isLoginVisible = true" isLoginVisible="isLoginVisible"
+      <login @click="isLoginVisible = true" isLoginVisible="isLoginVisible"
         >로그인</login
-      > -->
-      <button class="btn btn-primary" @click="gotoLogin">로그인</button>
+      >
+      <!-- <button class="btn btn-primary" @click="gotoLogin">로그인</button> -->
 
       <join @click="isJoinVisible = true" isJoinVisible="isJoinVisible"
         >회원가입</join

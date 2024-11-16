@@ -17,7 +17,7 @@ export default defineConfig({
     outDir: "../home/src/main/resources/static",
   }, // 빌드 결과물이 생성되는 경로
   server: {
-    port: 5000,
+    port: 5173,
     proxy: {
       "/board": {
         target: "http://localhost:5000",
