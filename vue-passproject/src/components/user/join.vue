@@ -15,20 +15,31 @@ const join = axios
     <button @click="isJoinVisible = true">회원가입</button>
 
     <!-- 모달 창 -->
-    <div v-if="isJoinVisible" class="modal-overlay">
-      <div class="modal-content">
+    <div v-if="isJoinVisible" id="modal-overlay">
+      <div id="modal-content">
         <h1>회원가입</h1>
         <h2>아이디</h2>
         <input type="text" maxlength="20" />
         <h2>비밀번호</h2>
-        <input type="text" maxlength="60" /><!-- 이후에 type="password로 교체해야 한다"-->
+        <input
+          type="text"
+          maxlength="60"
+        /><!-- 이후에 type="password로 교체해야 한다"-->
         <h2>이름</h2>
         <input type="text" maxlength="60" />
         <h2>주소</h2>
-        <input type="text" maxlength="60" /><!--여기는 주소 찾아볼 수 있는 서비스 탑재?-->
+        <input
+          type="text"
+          maxlength="60"
+        /><!--여기는 주소 찾아볼 수 있는 서비스 탑재?-->
         <h2>연락처</h2>
         <input type="text" maxlength="60" />
+<<<<<<< Updated upstream
         <input type="submit" value="회원가입" @click="join" />
+=======
+        <br />
+        <input type="submit" value="회원가입" @click=""/>
+>>>>>>> Stashed changes
         <input type="button" @click="isJoinVisible = false" value="닫기" />
       </div>
     </div>
@@ -36,7 +47,7 @@ const join = axios
 </template>
 
 <style scoped>
-.modal-overlay {
+#modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -49,7 +60,7 @@ const join = axios
   z-index: 99;
 }
 
-.modal-content {
+#modal-content {
   background-color: white;
   padding: 20px;
   border-radius: 8px;

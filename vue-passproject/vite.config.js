@@ -15,12 +15,10 @@ export default defineConfig({
   },
   build: {
     outDir: "../home/src/main/resources/static",
-  },
+  }, // 빌드 결과물이 생성되는 경로
   server: {
     proxy: {
-      "/": {
-        target: "http://localhost:5000",
-      },
-    },
+      "/api": "http://localhost:8080",
+    }, // proxy 설정
   },
 });
