@@ -1,6 +1,12 @@
 # Created by https://www.toptal.com/developers/gitignore/api/java,windows,macos,maven,intellij,intellij+iml,intellij+all,gradle,eclipse
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,windows,macos,maven,intellij,intellij+iml,intellij+all,gradle,eclipse
 
+/home/target/classes/META-INF/maven/com.ssafy/home/pom.properties
+
+/home/target/
+
+
+
 ### Eclipse ###
 .metadata
 bin/
