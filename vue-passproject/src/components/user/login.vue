@@ -18,32 +18,34 @@ const loginCheck = axiosInstance.post("/user/login", {});
         v-if="isLoginVisible"
         id="modal-overlay"
       >
-        <div id="modal-content">
-          <h2 class="my-3 py-3 shadow-sm bg-light text-center">로그인</h2>
+        <form @submit.prevent="login">
+          <div id="modal-content">
+            <h2 class="my-3 py-3 shadow-sm bg-light text-center">로그인</h2>
 
-          <b class="orange">아이디</b>
-          <input
-            type="text"
-            maxlength="20"
-          />
-          <br />
-          <b class="orange">비밀번호</b>
-          <input
-            type="text"
-            maxlength="60"
-          /><!-- 이후에 type="password로 교체해야 한다"-->
-          <br />
-          <input
-            type="submit"
-            value="로그인"
-            @click=""
-          />
-          <input
-            type="button"
-            @click="isLoginVisible = false"
-            value="닫기"
-          />
-        </div>
+            <b class="orange">아이디</b>
+            <input
+              type="text"
+              maxlength="20"
+            />
+            <br />
+            <b class="orange">비밀번호</b>
+            <input
+              type="text"
+              maxlength="60"
+            /><!-- 이후에 type="password로 교체해야 한다"-->
+            <br />
+            <input
+              type="submit"
+              value="로그인"
+              @click=""
+            />
+            <input
+              type="button"
+              @click="isLoginVisible = false"
+              value="닫기"
+            />
+          </div>
+        </form>
       </div>
     </div>
   </div>

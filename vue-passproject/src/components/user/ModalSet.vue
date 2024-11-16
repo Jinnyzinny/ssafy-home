@@ -9,10 +9,18 @@ const isLoginVisible = ref(false);
 <template>
   <div id="top-right-buttons">
     <!-- User정보가 있을 때 -->
-    <login @click="isLoginVisible = true" isLoginVisible="isLoginVisible">로그인</login>
-    <join @click="isJoinVisible = true" isJoinVisible="isJoinVisible">회원가입</join>
+    <login
+      @click="isLoginVisible = true"
+      isLoginVisible="isLoginVisible"
+      >로그인</login
+    >
+    <join
+      @click="isJoinVisible = true"
+      isJoinVisible="isJoinVisible"
+      >회원가입</join
+    >
     <!-- User정보가 없을 때 -->
-    <userInfo>회원 정보</userInfo>
+    <button>게시판</button>
     <button>로그아웃</button>
   </div>
 </template>
