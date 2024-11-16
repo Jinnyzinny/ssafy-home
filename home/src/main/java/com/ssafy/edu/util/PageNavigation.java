@@ -1,7 +1,10 @@
 package com.ssafy.edu.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PageNavigation {
-	
+
 	private boolean startRange; // 현재 페이지가 이전이 눌려지지 않는 범위의 페이지 체크
 	private boolean endRange; // 현재 페이지가 다음이 눌려지지 않는 범위의 페이지 체크
 	private int totalCount; // 총 게시글 갯수
@@ -11,10 +14,24 @@ public class PageNavigation {
 	private int naviSize; // 네비게이션 사이즈
 	private int countPerPage; // 페이지당 글 갯수
 	private String navigator;
-	
+
 	// 검색 조건 필드 추가
 	private String key; // 검색 키
 	private String word; // 검색 단어
+
+	// 추가: 페이지 번호 리스트를 반환하는 메서드
+	public List<Integer> getPageNumbers() {
+		int startPage = (currentPage - 1) / naviSize * naviSize + 1;
+		int endPage = startPage + naviSize - 1;
+		if (totalPageCount < endPage)
+			endPage = totalPageCount;
+
+		List<Integer> pageNumbers = new ArrayList<>();
+		for (int i = startPage; i <= endPage; i++) {
+			pageNumbers.add(i);
+		}
+		return pageNumbers;
+	}
 
 	public boolean isStartRange() {
 		return startRange;
@@ -83,7 +100,7 @@ public class PageNavigation {
 	public void setCountPerPage(int countPerPage) {
 		this.countPerPage = countPerPage;
 	}
-	
+
 	// 검색 조건 getter/setter 추가
 	public String getKey() {
 		return key;
@@ -104,12 +121,12 @@ public class PageNavigation {
 	public void makeNavigator() {
 		int startPage = (currentPage - 1) / naviSize * naviSize + 1;
 		int endPage = startPage + naviSize - 1;
-		if(totalPageCount < endPage)
+		if (totalPageCount < endPage)
 			endPage = totalPageCount;
-		
+
 		StringBuilder builder = new StringBuilder();
 		builder.append("		<ul class=\"pagination justify-content-center\"> \n");
-		
+
 		// '처음' 버튼
 		builder.append("			<li class=\"page-item\" data-pg=\"1\"");
 		if (key != null && !key.isEmpty() && word != null && !word.isEmpty()) {
@@ -118,7 +135,7 @@ public class PageNavigation {
 		builder.append("> \n");
 		builder.append("				<a href=\"#\" class=\"page-link\">처음</a> \n");
 		builder.append("			</li> \n");
-		
+
 		// '이전' 버튼
 		int prevPgno = (startPage - 1) < 1 ? 1 : (startPage - 1);
 		builder.append("			<li class=\"page-item\" data-pg=\"").append(prevPgno).append("\"");
@@ -128,12 +145,11 @@ public class PageNavigation {
 		builder.append("> \n");
 		builder.append("				<a href=\"#\" class=\"page-link\">이전</a> \n");
 		builder.append("			</li> \n");
-		
+
 		// 페이지 번호 버튼들
-		for(int i = startPage; i <= endPage; i++) {
-			builder.append("			<li class=\"")
-				   .append(currentPage == i ? "page-item active" : "page-item")
-				   .append("\" data-pg=\"").append(i).append("\"");
+		for (int i = startPage; i <= endPage; i++) {
+			builder.append("			<li class=\"").append(currentPage == i ? "page-item active" : "page-item")
+					.append("\" data-pg=\"").append(i).append("\"");
 			if (key != null && !key.isEmpty() && word != null && !word.isEmpty()) {
 				builder.append(" data-key=\"").append(key).append("\" data-word=\"").append(word).append("\"");
 			}
@@ -141,7 +157,7 @@ public class PageNavigation {
 			builder.append("				<a href=\"#\" class=\"page-link\">").append(i).append("</a> \n");
 			builder.append("			</li> \n");
 		}
-		
+
 		// '다음' 버튼
 		int nextPgno = (endPage + 1) > totalPageCount ? totalPageCount : (endPage + 1);
 		builder.append("			<li class=\"page-item\" data-pg=\"").append(nextPgno).append("\"");
@@ -151,7 +167,7 @@ public class PageNavigation {
 		builder.append("> \n");
 		builder.append("				<a href=\"#\" class=\"page-link\">다음</a> \n");
 		builder.append("			</li> \n");
-		
+
 		// '마지막' 버튼
 		builder.append("			<li class=\"page-item\" data-pg=\"").append(totalPageCount).append("\"");
 		if (key != null && !key.isEmpty() && word != null && !word.isEmpty()) {
@@ -160,9 +176,9 @@ public class PageNavigation {
 		builder.append("> \n");
 		builder.append("				<a href=\"#\" class=\"page-link\">마지막</a> \n");
 		builder.append("			</li> \n");
-		
+
 		builder.append("		</ul> \n");
-		
+
 		this.navigator = builder.toString();
 	}
 

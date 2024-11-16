@@ -31,6 +31,8 @@ public class BoardController {
     }
 
     // 글 목록 조회
+ // BoardController.java
+
     @GetMapping
     public ResponseEntity<Map<String, Object>> listArticle(@RequestParam Map<String, String> paramMap) {
         try {
@@ -39,7 +41,17 @@ public class BoardController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("articles", articles);
-            response.put("navigation", navigation);
+
+            // 페이지네이션 정보를 맵으로 구성
+            Map<String, Object> pageInfo = new HashMap<>();
+            pageInfo.put("startRange", navigation.isStartRange());
+            pageInfo.put("endRange", navigation.isEndRange());
+            pageInfo.put("totalCount", navigation.getTotalCount());
+            pageInfo.put("totalPageCount", navigation.getTotalPageCount());
+            pageInfo.put("currentPage", navigation.getCurrentPage());
+            pageInfo.put("naviSize", navigation.getNaviSize());
+            pageInfo.put("pageNumbers", navigation.getPageNumbers());
+            response.put("navigation", pageInfo);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -47,6 +59,7 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     // 특정 글 조회
     @GetMapping("/{articleNo}")
