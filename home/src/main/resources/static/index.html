@@ -191,5 +191,47 @@ function login() {
 
 </script>
 
+
+<script>
+function fetchDustInfo() {
+    fetch('/dustinfo/dustList')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('네트워크 응답에 문제가 있습니다.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const tbody = document.getElementById('dustinfolist');
+            tbody.innerHTML = ''; // 기존 내용 초기화
+
+            data.forEach((item, index) => {
+                const tr = document.createElement('tr');
+
+                // 번호
+                const tdNumber = document.createElement('td');
+                tdNumber.textContent = index + 1;
+                tr.appendChild(tdNumber);
+
+                // 군/구
+                const tdGugunName = document.createElement('td');
+                tdGugunName.textContent = item.gugunName;
+                tr.appendChild(tdGugunName);
+
+                // 등급
+                const tdGrade = document.createElement('td');
+                tdGrade.textContent = item.grade;
+                tr.appendChild(tdGrade);
+
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(error => {
+            console.error('대기 정보 조회 중 오류 발생:', error);
+            alert('대기 정보를 가져오는 데 실패했습니다.');
+        });
+}
+</script>
+
 </body>
 </html>
