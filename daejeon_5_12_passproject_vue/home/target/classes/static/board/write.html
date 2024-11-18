@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>글쓰기</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- 헤더 -->
+    <div id="header">
+        <!-- Include your header content here -->
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10 col-sm-12">
+                <h2 class="my-3 py-3 shadow-sm bg-light text-center">
+                    <b class="sky">글쓰기</b>
+                </h2>
+            </div>
+            <div class="col-lg-8 col-md-10 col-sm-12">
+                <form id="form-register">
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">제목 : </label>
+                        <input type="text" class="form-control" id="subject" name="subject" placeholder="제목..." />
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">내용 : </label>
+                        <textarea class="form-control" id="content" name="content" rows="7"></textarea>
+                    </div>
+                    <div class="col-auto text-center">
+                        <button type="button" id="btn-register" class="btn btn-outline-primary mb-3">글작성</button>
+                        <button type="reset" class="btn btn-outline-danger mb-3">초기화</button>
+                        <button type="button" id="btn-back" class="btn btn-outline-secondary mb-3" onclick="location.href='/board/list.html'">뒤로가기</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 및 Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+    document.querySelector("#btn-register").addEventListener("click", function () {
+        const subject = document.querySelector("#subject").value.trim();
+        const content = document.querySelector("#content").value.trim();
+
+        if (!subject || !content) {
+            alert("제목과 내용을 입력하세요!");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            location.href = "/user/login.html";
+            return;
+        }
+
+        const postData = { subject, content };
+
+        fetch("/api/board", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(postData)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("글이 성공적으로 작성되었습니다!");
+                location.href = "/board/list.html";
+            } else if (response.status === 401) {
+                alert("로그인이 필요합니다.");
+                location.href = "/user/login.html";
+            } else {
+                alert("글 작성에 실패했습니다.");
+            }
+        })
+        .catch(error => console.error("에러 발생:", error));
+    });
+
+    </script>
+</body>
+
+</html>
