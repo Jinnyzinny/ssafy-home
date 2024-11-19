@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import axios from "axios";
 
 // 상태 변수
@@ -15,18 +15,16 @@ const message = ref(""); // 오류 메시지
 // 사용자 정보 가져오기
 const fetchUserInfo = async () => {
   try {
-    const response = await axios.get("https://localhost:5000/user/userinfo", {
+    const response = await axios.get("http://localhost:5000/user/userinfo", {
       headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-    });
-
+    }).then(response=>response.data);
     // 서버 응답으로 상태 업데이트
-    const data = response.data;
-    userName.value = data.userName;
-    userId.value = data.userId;
-    emailId.value = data.emailId;
-    emailDomain.value = data.emailDomain;
+    userName.value = response.userName;
+    userId.value = response.userId;
+    emailId.value = response.emailId;
+    emailDomain.value = response.emailDomain;
   } catch (error) {
     console.error("Error fetching user data:", error);
     alert("사용자 정보를 불러오는 중 문제가 발생했습니다.");
@@ -50,7 +48,7 @@ const updateProfile = async () => {
   };
 
   try {
-    const response = await axios.put("/user/edit", data, {
+    const response = await axios.put("http://localhost:5000/user/edit", data, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -69,7 +67,7 @@ const deleteMember = async () => {
   if (!confirm("정말 탈퇴하시겠습니까?")) return;
 
   try {
-    await axios.delete("/user/delete", {
+    await axios.delete("http://localhost:5000/user/delete", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -180,21 +178,11 @@ const closeModal = () => {
               </div>
               <div class="text-danger mb-2">{{ message }}</div>
               <div class="col-auto text-center">
-                <button type="submit" class="btn btn-outline-primary mb-3">
-                  수정
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline-danger mb-3"
-                  @click="deleteMember"
-                >
+                <button type="submit" class="btn btn-outline-primary mb-3">수정</button>
+                <button type="button" class="btn btn-outline-danger mb-3" @click="deleteMember">
                   탈퇴
                 </button>
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary mb-3"
-                  @click="closeModal"
-                >
+                <button type="button" class="btn btn-outline-secondary mb-3" @click="closeModal">
                   닫기
                 </button>
               </div>
