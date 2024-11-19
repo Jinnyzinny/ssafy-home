@@ -13,5 +13,5 @@ useKakao("05a47079bf95d0a15cefbb1c9fc58b82");
 const app = createApp(App);
 app.use(createPinia());
 
-// app.use(router);
+app.use(router);
 app.mount("#app");

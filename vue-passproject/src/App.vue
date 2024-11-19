@@ -12,7 +12,7 @@ import bottom_right_buttons from "@/components/bottom-right-buttons/bottom-right
   <!-- <sideBar /> -->
   <KakaoMap />
   <modalSet />
-  <!-- <bottom_right_buttons />--><!--이 부분이 하단 병원 지하철 버튼의 구현부-->
+  <bottom_right_buttons /><!--이 부분이 하단 병원 지하철 버튼의 구현부-->
 </template>
 
 <style scoped></style>
