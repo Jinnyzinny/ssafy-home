@@ -28,11 +28,11 @@ const login = async () => {
       userId: userId.value,
       userPwd: userPwd.value,
     });
-
     // 요청 성공 시 처리
-    successMessage.value = response.data.message || "로그인 성공!";
+    localStorage.setItem("token", response.data.token);
+    successMessage.value = response.message || "로그인 성공!";
     console.log("로그인 성공:", response.data);
-    userStore.setjwtToken(response.data.token);
+    userStore.setjwtToken(response.token);
 
     if (saveId.value) {
       localStorage.setItem("savedUserId", userId.value); // 로컬 스토리지에 아이디 저장
@@ -43,8 +43,7 @@ const login = async () => {
     isModalVisible.value = false; // 모달 닫기
   } catch (err) {
     // 요청 실패 시 처리
-    error.value =
-      err.response?.data?.message || "로그인 실패. 다시 시도하세요.";
+    error.value = err.response?.data?.message || "로그인 실패. 다시 시도하세요.";
     console.error("로그인 실패:", err);
   }
 };
@@ -53,9 +52,7 @@ const login = async () => {
 <template>
   <div>
     <!-- 모달을 여는 버튼 -->
-    <button class="btn btn-primary" @click="isModalVisible = true">
-      로그인
-    </button>
+    <button class="btn btn-primary" @click="isModalVisible = true">로그인</button>
 
     <!-- 모달 -->
     <div v-if="isModalVisible" class="modal-overlay">
@@ -76,9 +73,7 @@ const login = async () => {
                   name="saveid"
                   v-model="saveId"
                 />
-                <label class="form-check-label" for="saveid">
-                  아이디 저장
-                </label>
+                <label class="form-check-label" for="saveid"> 아이디 저장 </label>
               </div>
               <div class="mb-3">
                 <label for="userid" class="form-label">아이디 :</label>
@@ -107,9 +102,7 @@ const login = async () => {
               <div class="text-danger mb-2" id="error">{{ error }}</div>
               <div class="text-success mb-2">{{ successMessage }}</div>
               <div class="col-auto text-center">
-                <button type="submit" class="btn btn-outline-primary mb-3">
-                  로그인
-                </button>
+                <button type="submit" class="btn btn-outline-primary mb-3">로그인</button>
                 <button
                   type="button"
                   class="btn btn-outline-secondary mb-3"

@@ -19,11 +19,6 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/board": {
-        target: "http://localhost:5000",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/board/, "/board"),
-      },
       // API 요청을 프록시
       "/user": {
         target: "http://localhost:5000", // Spring Boot 서버 주소
