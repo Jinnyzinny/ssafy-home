@@ -6,7 +6,8 @@ import join from "./join.vue";
 import { useUserStore } from "@/stores/userStore"; // Pinia 스토어 사용
 import router from "@/router";
 import UserInfo from "./userInfo.vue";
-import Notice from "./notice.vue";
+import Notice from "./board/noticelist.vue";
+import BoardView from "@/views/BoardView.vue";
 const userStore = useUserStore();
 
 const isJoinVisible = ref(false); // 회원가입 모달 표시 여부
@@ -21,16 +22,22 @@ const isLogin = computed(() => {
 const noticeVisible = ref(false);
 const noiceOpen = () => {
   console.log(noticeVisible.value);
+  router.push({ name: "board" });
   noticeVisible.value = true;
 };
-const noiceClose = () => {
+const noticeClose = () => {
   console.log(noticeVisible.value);
   noticeVisible.value = false;
 };
 </script>
 
 <template>
-  <Notice v-if="noticeVisible":is-visible="noticeVisible" @close="noiceClose"></Notice>
+  <!-- <Notice v-if="noticeVisible" :is-visible="noticeVisible" @close="noticeClose"></Notice> -->
+  <RouterLink
+    :to="{
+      name: 'board',
+    }"  :is-visible="noticeVisible" @close="noticeClose"
+  ></RouterLink>
   <div id="top-right-buttons">
     <template v-if="isLogin">
       <!-- 로그인 상태 -->

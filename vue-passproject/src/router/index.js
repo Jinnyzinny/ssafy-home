@@ -1,3 +1,5 @@
+
+import BoardView from "@/views/BoardView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
@@ -5,11 +7,9 @@ const router = createRouter({
   routes: [
     {
       path: "/board",
-      beforeEnter() {
-        // Spring 서버의 JSP 페이지로 리디렉션
-        window.location.href = "http://localhost:5000/api";
-      },
-    },
+      name: "board",
+      component: BoardView,
+    }
   ],
 });
 
