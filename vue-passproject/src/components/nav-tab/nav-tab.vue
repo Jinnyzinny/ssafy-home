@@ -58,6 +58,7 @@ const tabs = [
   z-index: 2;
   border-radius: 8px;
   overflow-y: auto;
+  border: 1px;
 }
 #search-results,
 #selection-results {
