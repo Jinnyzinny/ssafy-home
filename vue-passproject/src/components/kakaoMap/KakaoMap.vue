@@ -18,12 +18,7 @@ watch(
   }
 );
 
-import {
-  KakaoMap,
-  KakaoMapMarker,
-  KakaoMapCustomOverlay,
-} from "vue3-kakao-maps";
-
+import { KakaoMap, KakaoMapMarker, KakaoMapCustomOverlay } from "vue3-kakao-maps";
 const onLoadKakaoMap = (mapRef) => {
   map.value = mapRef;
 };
@@ -32,6 +27,18 @@ const customOverlayVisible = ref(false);
 
 const onClickKakaoMapMarker = () => {
   customOverlayVisible.value = !customOverlayVisible.value;
+};
+
+import detailModal from "@/components/kakaoMap/detailModal.vue";
+
+const detailModalVisible = ref(false);
+const detailModalOpen = () => {
+  detailModalVisible.value = true;
+  console.log(detailModalVisible.value);
+};
+const detailModalClose = () => {
+  detailModalVisible.value = false;
+  console.log(detailModalVisible.value);
 };
 </script>
 
@@ -70,13 +77,14 @@ const onClickKakaoMapMarker = () => {
         "
       >
         <div style="font-weight: bold; margin-bottom: 5px">
-          아파트 이름 : {{ mapStore.aptName }} <br />매매 거래액 :
-          {{ mapStore.dealAmount }}<br />
+          아파트 이름 : {{ mapStore.aptName }} <br />매매 거래액 : {{ mapStore.dealAmount }}억<br />
           아파트 주소 : {{ mapStore.address }}<br />
+          <button class="btn-primary" @click="detailModalOpen">매매가 변화 추이&세부 정보 보기</button>
         </div>
       </div>
-    </KakaoMapCustomOverlay>
-  </KakaoMap>
+    </KakaoMapCustomOverlay> </KakaoMap
+  ><detailModal v-if="detailModalVisible" :is-visible="detailModalVisible" @close="detailModalClose">
+  </detailModal>
 </template>
 <style scoped>
 #map {
@@ -86,5 +94,9 @@ const onClickKakaoMapMarker = () => {
   right: 0;
   bottom: 0;
   z-index: 1;
+}
+.btn-primary {
+  background-color: #007bff;
+  color: white;
 }
 </style>
