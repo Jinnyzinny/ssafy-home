@@ -4,10 +4,8 @@ import login from "./login.vue";
 import join from "./join.vue";
 
 import { useUserStore } from "@/stores/userStore"; // Pinia 스토어 사용
-import router from "@/router";
 import UserInfo from "./userInfo.vue";
-import Notice from "./board/noticelist.vue";
-import BoardView from "@/views/BoardView.vue";
+import ModalWrapper from "@/components/user/modalWrapper.vue";
 const userStore = useUserStore();
 
 const isJoinVisible = ref(false); // 회원가입 모달 표시 여부
@@ -22,7 +20,6 @@ const isLogin = computed(() => {
 const noticeVisible = ref(false);
 const noiceOpen = () => {
   console.log(noticeVisible.value);
-  router.push({ name: "board" });
   noticeVisible.value = true;
 };
 const noticeClose = () => {
@@ -32,12 +29,7 @@ const noticeClose = () => {
 </script>
 
 <template>
-  <!-- <Notice v-if="noticeVisible" :is-visible="noticeVisible" @close="noticeClose"></Notice> -->
-  <RouterLink
-    :to="{
-      name: 'board',
-    }"  :is-visible="noticeVisible" @close="noticeClose"
-  ></RouterLink>
+  <ModalWrapper v-if="noticeVisible" v-model:is-visible="noticeVisible" @close="noticeClose"></ModalWrapper>
   <div id="top-right-buttons">
     <template v-if="isLogin">
       <!-- 로그인 상태 -->
@@ -49,7 +41,6 @@ const noticeClose = () => {
       <!-- 비로그인 상태 -->
       <login @click="isLoginVisible = true" isLoginVisible="isLoginVisible">로그인</login>
       <!-- <button class="btn btn-primary" @click="gotoLogin">로그인</button> -->
-
       <join @click="isJoinVisible = true" isJoinVisible="isJoinVisible">회원가입</join>
     </template>
   </div>

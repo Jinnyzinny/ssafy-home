@@ -4,7 +4,6 @@
 
 <template>
     <div>
-        tq
     </div>
 </template>
 

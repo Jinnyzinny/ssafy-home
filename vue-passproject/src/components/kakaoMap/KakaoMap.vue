@@ -51,7 +51,6 @@ const detailModalClose = () => {
     :lng="center.lng"
     @onLoadKakaoMap="onLoadKakaoMap"
     :draggable="true"
-    z-index="0"
   >
     <!-- 동적으로 마커 렌더링 -->
     <KakaoMapMarker
@@ -93,7 +92,7 @@ const detailModalClose = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1;
+  z-index: 0;
 }
 .btn-primary {
   background-color: #007bff;

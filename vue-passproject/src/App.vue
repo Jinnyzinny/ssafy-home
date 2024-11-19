@@ -19,10 +19,8 @@ const sideBarToggle = () => {
 </script>
 
 <template>
-  <template v-if="sideBarVisible"><navTab /></template>
-  <template v-else >
-    <button @click="sideBarToggle">사이드바</button>
-  </template>
+  <navTab />
+  <!-- <button class="btn-primary" @click="sideBarToggle" id="sideBarToggle">사이드바</button> -->
   <!-- <sideBar /> -->
   <!-- <KakaoMap /> -->
   <modalSet />
@@ -37,5 +35,8 @@ const sideBarToggle = () => {
   <!-- 이 부분이 하단 병원 지하철 버튼의 구현부 -->
 </template>
 
-<style scoped></style>
-
+<style scoped>
+#sideBarToggle {
+  z-index: 99;
+}
+</style>
